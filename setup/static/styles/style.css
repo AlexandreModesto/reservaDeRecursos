@@ -1,0 +1,43 @@
+#id_nome{
+    width:100%;
+    margin-bottom:5%;
+}
+#id_email{
+    width:100%;
+    margin-bottom:5%;
+}
+#id_salas{
+    margin-bottom:5%;
+}
+.formsala{
+    padding-top:5%;
+}
+
+
+#id_carro{
+    margin-bottom:5%;
+}
+#messageDiv{
+    opacity:1;
+    transition:opacity 1s;
+}
+#messageDiv.fade{
+    opacity:0;
+}
+.card:hover{
+    transform:scale(1.1);
+    box-shadow: 5px 6px 6px 2px #e9ecef;
+}
+@media only screen and (min-width:1767px){
+
+.formsala{
+    padding-top:10%;
+}
+.btnIndex{
+    padding:10px;
+    font-size:20px;
+}
+.btnLogin{
+    font-size:20px;
+}
+}

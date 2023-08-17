@@ -1,0 +1,16 @@
+{% extends 'reserva/base.html' %}
+{% load static %}
+{% block content %}
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row justify-content-md-center">
+    {% for item in login.visible_fields %}
+            <div class="col-md-auto formsala">
+                <label class='label' for="{{login.id_for_label}}">{{item.label}}</label>
+                {{item}}
+        {% endfor %}
+    <input type="submit" class="btn btn-success" value="Enviar" style="margin-top:10px;">
+            </div>
+    </div>
+</form>
+{% endblock %}

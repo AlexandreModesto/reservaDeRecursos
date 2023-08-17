@@ -1,0 +1,84 @@
+{% extends 'reserva/base.html' %}
+{% load static %}
+{% block content %}
+<div>
+    <form action="" method="post">
+        {% csrf_token %}
+        <div class="row justify-content-md-center">
+        {% for item in carroForm.visible_fields %}
+                <div class="col-md-auto fieldWrapper">
+                    <label class="label" for="{{carroForm.id_for_label}}">{{item.label}}</label>
+                    {{item}}
+            {% endfor %}
+            <label for="data">Data Inicial da Reserva</label><br>
+            <input type="date" style="margin-bottom:5px" id="dataInit" name="dataInit"><br>
+            <label for="data">Data Final da Reserva</label><br>
+            <input type="date" style="margin-bottom:5px" id="dataEnd" name="dataEnd"><br>
+            <label for="stt-time">Coloque a hora de início</label>
+            <input type="time" style="margin-left:2.5%;margin-bottom:1%;" name="stt-time"><br>
+            <label for="end-time">Coloque a hora de término</label>
+            <input type="time" name="end-time">
+            <input type="submit" class="btn btn-success" style="float:right;" value="Salvar">
+                </div>
+        </div>
+    </form>
+{% if model %}
+    <div class="row justify-content-md-left">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Carro</th>
+                <th scope="col">Data Início</th>
+                <th scope="col">Data Final</th>
+                <th scope="col">Hora Início</th>
+                <th scope="col">Hora Final</th>
+                <th scope="col">Solicitante</th>
+            </tr>
+            </thead>
+            {% for item in model %}
+            {% if item.aprovado == True %}
+                <tbody>
+                <th scope="row">{{item.carro}}</th>
+                <td>{{item.dataInit}}</td>
+                <td>{{item.dataEnd}}</td>
+                <td>{{item.horaInit}}</td>
+                <td>{{item.horaEnd}}</td>
+                <td>{{item.solicitante}}</td>
+                </tbody>
+            {% else %}
+                <tbody>
+                <th scope="row"style="background:yellow;">{{item.carro}}</th>
+                <td style="background:yellow;">{{item.dataInit}}</td>
+                <td style="background:yellow;">{{item.dataEnd}}</td>
+                <td style="background:yellow;">{{item.horaInit}}</td>
+                <td style="background:yellow;">{{item.horaEnd}}</td>
+                <td style="background:yellow;">{{item.solicitante}}</td>
+                </tbody>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+ <table class="table" style="margin-top:10%;">
+            <thead>
+            <tr>
+                <th scope="col">Carro</th>
+                <th scope="col">Data Início</th>
+                <th scope="col">Data Final</th>
+                <th scope="col">Hora Início</th>
+                <th scope="col">Hora Final</th>
+                <th scope="col">Solicitante</th>
+            </tr>
+            </thead>
+     <tbody>
+                <th scope="row"> </th>
+                <td> </td>
+                <td> Sem </td>
+                <td>Reservas</td>
+                <td> </td>
+                <td> </td>
+                </tbody>
+ </table>
+    {% endif %}
+</div>
+{% endblock %}

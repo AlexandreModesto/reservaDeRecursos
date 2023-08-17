@@ -1,0 +1,22 @@
+#id_nome{
+    width:100%;
+    margin-bottom:5%;
+}
+#id_email{
+    width:100%;
+    margin-bottom:5%;
+}
+#id_salas{
+    margin-bottom:5%;
+}
+#lable{
+    padding:3.5%;
+}
+
+#id_carro{
+    margin-bottom:5%;
+}
+@media only screen and (min-width:1767px){
+
+
+}
