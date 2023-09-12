@@ -1,0 +1,62 @@
+{% extends 'reserva/base.html' %}
+{% load static %}
+{% block content %}
+{% if model %}
+<button onclick="location.href='http://127.0.0.1:8000/reservas/Carro'" type="button" class="btn btn-success">Voltar</button>
+    <div class="row justify-content-md-left">
+        <table class="table">
+            <thead>
+            <tr>
+                <th scope="col">Carro</th>
+                <th scope="col">Data Início</th>
+                <th scope="col">Data Final</th>
+                <th scope="col">Hora Início</th>
+                <th scope="col">Hora Final</th>
+                <th scope="col">Solicitante</th>
+            </tr>
+            </thead>
+            {% for item in model %}
+            {% if item.aprovado == True %}
+                <tbody>
+                <th scope="row">{{item.carro}}</th>
+                <td class="table">{{item.dataInit}}</td>
+                <td class="table">{{item.dataEnd}}</td>
+                <td class="table">{{item.horaInit}}</td>
+                <td class="table">{{item.horaEnd}}</td>
+                <td class="table">{{item.solicitante}}</td>
+                </tbody>
+            {% else %}
+                <tbody>
+                <th scope="row">{{item.carro}}</th>
+                <td class="table-warning">{{item.dataInit}}</td>
+                <td class="table-warning">{{item.dataEnd}}</td>
+                <td class="table-warning">{{item.horaInit}}</td>
+                <td class="table-warning">{{item.horaEnd}}</td>
+                <td class="table-warning">{{item.solicitante}}</td>
+                </tbody>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+ <table class="table" style="margin-top:10%;">
+            <thead>
+            <tr>
+                <th scope="col">Carro</th>
+                <th scope="col">Data Início</th>
+                <th scope="col">Data Final</th>
+                <th scope="col">Hora Início</th>
+                <th scope="col">Hora Final</th>
+                <th scope="col">Solicitante</th>
+            </tr>
+            </thead>
+     <tbody>
+                <th scope="row"> </th>
+                <td class="table"> </td>
+                <td class="table"> Sem </td>
+                <td class="table">Reservas</td>
+                <td class="table"> </td>
+                <td class="table"> </td>
+                </tbody>
+ </table>
+{% endblock %}

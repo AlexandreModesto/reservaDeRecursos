@@ -1,84 +1,50 @@
 {% extends 'reserva/base.html' %}
 {% load static %}
 {% block content %}
+{% if carroForm %}
+<script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+<script src="{% static '/js/bootstrap-datepicker.min.js' %}"></script>
+<script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
+<script defer src="{% static 'reserva/js/script.js' %}"></script>
 <div>
-    <form action="" method="post">
+    <form action="" method="post" id="formCar" class="">
         {% csrf_token %}
-        <div class="row justify-content-md-center">
+        <div class="row justify-content-md-center ">
         {% for item in carroForm.visible_fields %}
                 <div class="col-md-auto fieldWrapper">
                     <label class="label" for="{{carroForm.id_for_label}}">{{item.label}}</label>
                     {{item}}
             {% endfor %}
-            <label for="data">Data Inicial da Reserva</label><br>
-            <input type="date" style="margin-bottom:5px" id="dataInit" name="dataInit"><br>
-            <label for="data">Data Final da Reserva</label><br>
-            <input type="date" style="margin-bottom:5px" id="dataEnd" name="dataEnd"><br>
-            <label for="stt-time">Coloque a hora de início</label>
-            <input type="time" style="margin-left:2.5%;margin-bottom:1%;" name="stt-time"><br>
-            <label for="end-time">Coloque a hora de término</label>
-            <input type="time" name="end-time">
+             <br>
+            <div id="divRepetir" style="visibility:hidden">
+                <select name="nuRepetir" class="inline">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+                <select name="tpRepetir" class="inline">
+                    <option value="D">Dias</option>
+                    <option value="W">Semanas</option>
+                </select>
+                <div class="datepicker position-relative border-1 p-4">
+                    <input type="text" name="ate" id="ate">
+                </div>
+            </div>
+            <br>
             <input type="submit" class="btn btn-success" style="float:right;" value="Salvar">
                 </div>
         </div>
     </form>
-{% if model %}
-    <div class="row justify-content-md-left">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">Carro</th>
-                <th scope="col">Data Início</th>
-                <th scope="col">Data Final</th>
-                <th scope="col">Hora Início</th>
-                <th scope="col">Hora Final</th>
-                <th scope="col">Solicitante</th>
-            </tr>
-            </thead>
-            {% for item in model %}
-            {% if item.aprovado == True %}
-                <tbody>
-                <th scope="row">{{item.carro}}</th>
-                <td>{{item.dataInit}}</td>
-                <td>{{item.dataEnd}}</td>
-                <td>{{item.horaInit}}</td>
-                <td>{{item.horaEnd}}</td>
-                <td>{{item.solicitante}}</td>
-                </tbody>
-            {% else %}
-                <tbody>
-                <th scope="row"style="background:yellow;">{{item.carro}}</th>
-                <td style="background:yellow;">{{item.dataInit}}</td>
-                <td style="background:yellow;">{{item.dataEnd}}</td>
-                <td style="background:yellow;">{{item.horaInit}}</td>
-                <td style="background:yellow;">{{item.horaEnd}}</td>
-                <td style="background:yellow;">{{item.solicitante}}</td>
-                </tbody>
-            {% endif %}
-            {% endfor %}
-        </table>
-    </div>
-    {% else %}
- <table class="table" style="margin-top:10%;">
-            <thead>
-            <tr>
-                <th scope="col">Carro</th>
-                <th scope="col">Data Início</th>
-                <th scope="col">Data Final</th>
-                <th scope="col">Hora Início</th>
-                <th scope="col">Hora Final</th>
-                <th scope="col">Solicitante</th>
-            </tr>
-            </thead>
-     <tbody>
-                <th scope="row"> </th>
-                <td> </td>
-                <td> Sem </td>
-                <td>Reservas</td>
-                <td> </td>
-                <td> </td>
-                </tbody>
- </table>
-    {% endif %}
 </div>
+{% endif %}
+<script>
+var date = new Date();
+date.setDate(date.getDate());
+$('#ate').datepicker();
+</script>
 {% endblock %}

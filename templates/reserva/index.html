@@ -2,10 +2,10 @@
 {% load static %}
 {% block content %}
 <div class="d-grid gap-2 d-md-flex justify-content-md-end" style="text-align: right;">
-    <button type="button" class="btn btn-success btnLogin" style="width:200px" onclick="location.href='http://10.110.209.15:80/login';">Login</button>
+    <button type="button" class="btn btn-success btnLogin" style="width:200px" onclick="location.href='http://127.0.0.1:8000/login'">Login</button>
 </div>
 <h1>Reserva de Recursos</h1>
 <h3>Qual recurso deseja reservar?</h3>
-<button type="button" onclick="location.href='http://10.110.209.15:80/salas';" class="btn btn-outline-primary btnIndex">Sala</button>
-<button type="button" onclick="location.href='http://10.110.209.15:80/carros';"class="btn btn-outline-primary btnIndex">Carro</button>
+<button type="submit" onclick="location.href='http://127.0.0.1:8000/';" class="btn btn-outline-primary btnIndex">Sala</button>
+<button type="button" onclick="location.href='http://127.0.0.1:8000/';"class="btn btn-outline-primary btnIndex">Carro</button>
 {% endblock %}

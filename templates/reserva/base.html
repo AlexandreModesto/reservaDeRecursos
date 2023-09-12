@@ -1,5 +1,6 @@
 <!--*-coding:utf-8 -*-->
 {% load static %}
+{% include 'partials/_loading-modal.html' %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -10,28 +11,39 @@
     <meta http-equiv="X-UA-Compatible" content="IE-edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static '/styles/style.css' %}">
+    <link rel="stylesheet" href="{% static '/css/bootstrap-datepicker.min.css' %}">
+    <script defer src="{% static 'reserva/js/script.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-git.js"></script>
 </head>
-<script>
-    setTimeout(() => {
-    const box = document.getElementById('messageDiv');
-    box.style.display='none';},3000);
-</script>
 <body style="background: #fafafa">
-<div class="container" style="background: #ffffff;height:100vh;">
-<header>
-    <a href="{% url 'index' %}"><img src="{% static '/assets/logo/Cooperemb-Blip-Logo.jpeg' %}" width="200px" height="150px"></a>
-    <div class="row justify-content-md-center" id="messageDiv">
-        <div class="col-md-auto">
-        {% for message in messages %}
-            <div class="alert alert-primary text-align-center">
-                <p id="messages" >{{message}}</p>
+    <div class="container" style="background: #ffffff;height:100vh;">
+    <header>
+        <a href="{% url 'index' %}"><img src="{% static '/assets/logo/Cooperemb-Blip-Logo.jpeg' %}" width="200px" height="150px"></a>
+        <div class="row justify-content-md-center" id="messageDiv">
+            <div class="col-md-auto">
+            {% for message in messages %}
+                <div class="alert alert-primary text-align-center">
+                    <p id="messages" >{{message}}</p>
+                </div>
+            {% endfor %}
             </div>
-        {% endfor %}
+        </div>
+    </header>
+    <div class="preloader-wrapper" id="preloader-wrapper" style="position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:#fafafa;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition: all 2s;">
+        <div class="spinner-border text-primary" role="status" style="width:200px;height:200px;">
+            <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-</header>
-
-{% block content %}{% endblock %}
-</div>
+    {% block content %}{% endblock %}
+    </div>
 </body>
 </html>

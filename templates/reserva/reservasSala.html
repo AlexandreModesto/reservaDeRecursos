@@ -1,0 +1,73 @@
+{% extends 'reserva/base.html' %}
+{% load static %}
+{% block content %}
+<button onclick="location.href='http://127.0.0.1:8000/reservas/Sala'" type="button" class="btn btn-success">Voltar</button>
+{% if model %}
+    <div class="row justify-content-md-left">
+        <table class="table table-striped table-bordered table-responsive caption-top">
+            <caption>
+                <p>🟡 Em análise</p>
+                <p>⚪ Aprovado</p>
+            </caption>
+            <thead class="table-dark">
+            <tr>
+                <th scope="col">Sala</th>
+                <th scope="col">Data Início</th>
+                <th scope="col">Data Final</th>
+                <th scope="col">Hora Início</th>
+                <th scope="col">Hora Final</th>
+                <th scope="col">Solicitante</th>
+            </tr>
+            </thead>
+            {% for item in model %}
+            {% if item.aprovado == True %}
+                <tbody>
+                <tr>
+                    <th scope="row" class="table">{{item.sala}}</th>
+                    <td class="table">{{item.dataInit}}</td>
+                    <td class="table">{{item.dataEnd}}</td>
+                    <td class="table">{{item.horaInit}}</td>
+                    <td class="table">{{item.horaEnd}}</td>
+                    <td class="table">{{item.solicitante}}</td>
+                </tr>
+                </tbody>
+            {% else %}
+                <tbody>
+                <tr>
+                    <th scope="row" class="table-warning">{{item.sala}}</th>
+                    <td class="table-warning">{{item.dataInit}}</td>
+                    <td class="table-warning">{{item.dataEnd}}</td>
+                    <td class="table-warning">{{item.horaInit}}</td>
+                    <td class="table-warning">{{item.horaEnd}}</td>
+                    <td class="table-warning">{{item.solicitante}}</td>
+                </tr>
+                </tbody>
+            {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+    {% else %}
+ <table class="table" style="margin-top:10%;">
+            <thead>
+            <tr>
+                <th scope="col">Sala</th>
+                <th scope="col">Data Início</th>
+                <th scope="col">Data Final</th>
+                <th scope="col">Hora Início</th>
+                <th scope="col">Hora Final</th>
+                <th scope="col">Solicitante</th>
+            </tr>
+            </thead>
+     <tbody>
+     <tr>
+                <th scope="row"> </th>
+                <td class="table"> </td>
+                <td class="table"> Sem </td>
+                <td class="table">Reservas</td>
+                <td class="table"> </td>
+                <td class="table"> </td>
+     </tr>
+                </tbody>
+ </table>
+    {% endif %}
+{% endblock %}

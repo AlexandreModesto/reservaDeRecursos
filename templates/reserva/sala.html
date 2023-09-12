@@ -2,7 +2,7 @@
 {% load static %}
 {% block content %}
 <div>
-    <form action="" method="post">
+    <form action="" method="post" class="show-loading-after-submit" id="form">
         {% csrf_token %}
         <div class="row justify-content-md-center">
         {% for item in salaForm.visible_fields %}
@@ -10,15 +10,11 @@
                 <label class='label' for="{{salaForm.id_for_label}}">{{item.label}}</label>
                 {{item}}
         {% endfor %}
-        <label for="data">Data Inicial da Reserva</label><br>
+        <label for="dataInit">Data Inicial da Reserva</label><br>
         <input type="date" style="margin-bottom:5px" id="dataInit" name="dataInit"><br>
-        <label for="data">Data Final da Reserva</label><br>
+        <label for="dataEnd">Data Final da Reserva</label><br>
         <input type="date" style="margin-bottom:5px" id="dataEnd" name="dataEnd"><br>
-        <label for="stt-time">Coloque a hora de início</label>
-        <input type="time" style="margin-left:2.5%;margin-bottom:1%;" name="stt-time"><br>
-        <label for="end-time">Coloque a hora de término</label>
-        <input type="time" name="end-time">
-        <input type="submit" class="btn btn-success" style="float:right;" value="Salvar">
+        <input type="submit" class="btn btn-success" style="float:right;" value="Salvar" id="salaSubmit">
             </div>
         </div>
     </form>

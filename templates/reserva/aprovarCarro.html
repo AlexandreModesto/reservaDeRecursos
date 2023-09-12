@@ -4,6 +4,9 @@
 <div style="text-align:center;">
     <h1>Pedidos de reserva</h1>
 </div>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end" style="text-align: right;">
+    <button type="button" class="btn btn-success" style="width:200px" onclick="location.href='http://10.110.209.15/admin'">Administrador</button>
+</div>
 {% if db %}
 <div class="row">
 {% for item in db%}
@@ -19,7 +22,9 @@
                     <p class="card-text">Dás: {{item.horaInit}} Até {{item.horaEnd}}</p>
                     <input type="text" style="display:none" value="{{item.id}}" name="id">
                     <button type="submit" class="btn btn-success" value="aprovar" name="botao">Aprovar</button>
-                    <button type="submit" class="btn btn-danger" value="reprovar" name="botao">Reprovar</button>
+                    <button class="btn btn-danger" value="reprovar" name="botao" id="botaor">Reprovar</button><br>
+                    <input type="text" style="display:none;margin-top:5px;" name="repro" id="repro" placeholder="Digite o parecer:">
+                    <input type="submit" style="display:none" class=" btn btn-success" id="submit" value="Enviar">
                 </form>
             </div>
         </div>

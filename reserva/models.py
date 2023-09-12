@@ -7,10 +7,8 @@ class Carro(models.Model):
     email=models.EmailField(max_length=254, default='antoniorezende@sicoob.com.br')
     solicitante=models.CharField(max_length=100,null=True,blank=True)
     email_solicitante=models.EmailField(max_length=254,null=True,blank=True)
-    dataInit=models.DateField(null=True,blank=True)
-    dataEnd = models.DateField(null=True, blank=True)
-    horaInit = models.TimeField(null=True, blank=True)
-    horaEnd = models.TimeField(null=True, blank=True)
+    data = models.DateField(null=True, blank=True)
+    hora = models.CharField(max_length=11,null=True, blank=True)
     aprovado = models.BooleanField(null=True, blank=True)
 
     class Meta:
@@ -24,10 +22,8 @@ class Sala(models.Model):
     email=models.EmailField(max_length=254)
     solicitante = models.CharField(max_length=100, null=True,blank=True)
     email_solicitante = models.EmailField(max_length=254, null=True,blank=True)
-    dataInit = models.DateField(null=True, blank=True)
-    dataEnd = models.DateField(null=True, blank=True)
-    horaInit=models.TimeField(null=True,blank=True)
-    horaEnd=models.TimeField(null=True,blank=True)
+    data = models.DateField(null=True, blank=True)
+    hora=models.CharField(max_length=11,null=True,blank=True)
     aprovado=models.BooleanField(null=True,blank=True)
 
     class Meta:

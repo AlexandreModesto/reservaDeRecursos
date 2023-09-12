@@ -28,8 +28,30 @@
     transform:scale(1.1);
     box-shadow: 5px 6px 6px 2px #e9ecef;
 }
-@media only screen and (min-width:1767px){
+.datepicker table tr td{
+    background:#5cb85c;
+}
+.datepicker table tr td,
+.datepicker table tr th{
+    text-align: center;
+    padding: 8px 12px;
+    width: 200px;
+    height: 40px;
+    font-size: 14px;
+    border-radius:10px;
 
+}
+.datepicker table tr td.highlighted{
+    border-radius:10px!important;
+}
+@media only screen and (min-width:1767px){
+#messageDiv{
+    opacity:1;
+    transition:opacity 1s;
+}
+#messageDiv.fade{
+    opacity:0;
+}
 .formsala{
     padding-top:10%;
 }
@@ -40,4 +62,19 @@
 .btnLogin{
     font-size:20px;
 }
+.datepicker table tr td{
+    background:#5cb85c;
+}
+.datepicker table tr td,
+.datepicker table tr th{
+
+}
+.datepicker input{
+    width:100px!important;
+}
+.datepicker table tr td.highlighted{
+    border-radius:10px!important;
+    background:red!important;
+}
+
 }
