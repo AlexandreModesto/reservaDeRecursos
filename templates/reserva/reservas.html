@@ -17,16 +17,12 @@
     <input type="submit" value="Pesquisar" class="btn btn-success">
 </form>
 {% endif %}
-<select name="selectCarro">
-    <option value="Ford Ka">Ford Ka</option>
-    <option value="Onix">Onix</option>
-    <option value="HB20">HB20</option>
-</select>
+<input style="display:none" id="car" value="{{carro}}">
 <input style="display:none" id="resultados">
 <div >
     <form action="Sala" method="post">
         {% csrf_token %}
-    <div id="datepicker" class="datepicker border-1">
+    <div id="datepicker" class="datepicker">
         <input type="text" style="display:none" name="result" onchange="teste()" id="result">
     </div>
     <input type="submit" value="Enviar">
@@ -37,11 +33,13 @@
 </div>
 <script>
 async function main(){
- const response = await axios.get('http://127.0.0.1:8000/json');
+ const car = document.getElementById('car');
+ const response = await axios.get(`http://127.0.0.1:8000/json/${car.value}`);
  const data = response.data;
  const items = Object.values(data);
  var date = new Date();
  date.setDate(date.getDate());
+ const buttonCar = document.getElementById('btncar')
     $('#datepicker').datepicker({
         startDate: date,
         daysOfWeekDisabled: [0, 6],
@@ -64,7 +62,8 @@ async function main(){
 main()
 
 async function teste(){
-    const response = await axios.get('http://127.0.0.1:8000/json');
+    const car = document.getElementById('car');
+    const response = await axios.get(`http://127.0.0.1:8000/json/${car.value}`);
     const data = response.data;
     const items = Object.values(data);
     const teste= document.getElementById('result').value

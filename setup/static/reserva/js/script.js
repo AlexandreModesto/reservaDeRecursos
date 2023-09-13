@@ -1,6 +1,5 @@
     setTimeout(() => {
-    const box = document.getElementById('messageDiv');
-    box.style.display='none';},2500);
+    $("#messageDiv").fadeOut("slow");},2500);
 
     const preloaderWrapper=document.querySelector('.preloader-wrapper');
     window.addEventListener('load', ()=>{
@@ -36,10 +35,17 @@ $(document).ready(function () {
   }
 
 $(document).on('change',function () {
+    var largura = window.innerWidth;
     if (document.getElementById('id_repetir').checked === true){
-        document.getElementById('divRepetir').style.visibility='visible';
+        if (largura < 1767){
+            document.getElementById('divRepetir').style.display='inline';
+            document.getElementById('divRepetir').style.visibility='visible';
+        }else{document.getElementById('divRepetir').style.visibility='visible';}
     }else{
-        document.getElementById('divRepetir').style.visibility='hidden';
+        if (largura < 1767){
+            document.getElementById('divRepetir').style.display='none';
+            document.getElementById('divRepetir').style.visibility='hidden';
+        }else{document.getElementById('divRepetir').style.visibility='hidden';}
     }
 });
 

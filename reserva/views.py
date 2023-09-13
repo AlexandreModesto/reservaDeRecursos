@@ -15,7 +15,9 @@ def index(request):
 
 def carro(request,result,carro):
     carroForm = ReservaCarro()
-
+    result = result.split('-')
+    data = f'{result[0]}/{result[1]}/{result[2]}'
+    n_result = f'{result[2]}/{result[1]}/{result[0]}'
     if request.method == 'POST':
         carroForm = ReservaCarro(request.POST)
         if carroForm.is_valid():
@@ -23,18 +25,18 @@ def carro(request,result,carro):
             email=carroForm.cleaned_data['email']
             hora=carroForm.cleaned_data['horas']
             rep=carroForm.cleaned_data['repetir']
-            result = result.split('-')
-            n_result = f'{result[2]}/{result[1]}/{result[0]}'
+
 
             data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
             if not rep:
                 print(data_f)
                 r=Carro(carro=carro,solicitante=nome,email_solicitante=email,data=data_f,hora=hora)
-                r.save()
+                # r.save()
             else:
                 nuRepetir = request.POST.get('nuRepetir', None)  # numero
                 tpRepetir = request.POST.get('tpRepetir', None)  # D/S
                 ate = request.POST.get('ate', None)
+                print()
                 ate_f = datetime.strptime(ate, '%Y-%m-%d').date()
 
                 prox_data = data_f
@@ -69,7 +71,7 @@ def carro(request,result,carro):
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Nova Solicitação de Reserva</h1>
-                                            <p><strong>{nome} esta solicitando reserva de carro pro dia <strong>{result[0]}/{result[1]}/{result[2]}</strong> horário: <strong>{hora}</strong></p>
+                                            <p><strong>{nome} esta solicitando reserva de carro pro dia <strong>{data}</strong> horário: <strong>{hora}</strong></p>
                                             <p>Para aprovar ou não clique <a href='10.110.209.15/aprovarSala'>aqui</a></p>""",
                 None,
                 ['xandy.modest14@gmail.com'])
@@ -77,8 +79,8 @@ def carro(request,result,carro):
             msg.send()
             messages.success(request,'Reserva encaminhada para Aprovação')
             return redirect('index')
-        # print(carroForm.errors.as_data())
-    return render(request,'reserva/carro.html',{'carroForm':carroForm})
+        print(carroForm.errors.as_data())
+    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data})
 
 def sala(request):
     salaForm = ReservaSala()
@@ -258,16 +260,16 @@ def return_number(mes):
             'Agosto': 8, 'Setembro': 9, 'Outubro': 10, 'Novembro': 11, 'Dezembro': 12}
     return dict[mes]
 
-def reservas(request,mes):
+def reservas(request,carro):
     form=ReservasForm()
     if request.method =='POST':
         result = request.POST.get('result',None)
         result = result.replace('/','-')
         return redirect('carros',result,carro)
-    return render(request,'reserva/reservas.html')
+    return render(request,'reserva/reservas.html',{'carro':carro})
 
-def reservas_json(request):
-    resultados = {0: {
+def reservas_json_carro(request,carro):
+    resultadosFordKa = {0: {
                         "mes":9,
                         "dia":[4,5,6],
                         "datas":["04/10/2023","05/10/2023","06/10/2023"],
@@ -282,7 +284,20 @@ def reservas_json(request):
                         "autor":["autor1","autor2"]
                      }
                   }
-    return JsonResponse(resultados)
+    resultadosOnix = {0: {
+        "mes": 10,
+        "dia": [7, 25, 16],
+        "datas": ["07/11/2023", "25/11/2023", "16/11/2023"],
+        "motivo": ["motivo 07/11/2023", "motivo 25/11/2023", "motivo 16/11/2023"],
+        "autor": ["autor1", "autor2", "autor3"]
+    }
+    }
+    resultadosHB={}
+    if carro == 'FordKa':
+        return JsonResponse(resultadosFordKa)
+    elif carro == 'Onix':
+        return JsonResponse(resultadosOnix)
+    else:return JsonResponse(resultadosHB)
 def reserva_mes(request,db,mes):
     if not db == 'Sala':
         retorno = Carro.objects.filter(dataEnd__month__lte=return_number(mes))

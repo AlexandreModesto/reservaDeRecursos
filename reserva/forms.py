@@ -4,7 +4,7 @@ import  datetime
 
 class ReservaCarro(forms.Form):
     carroChoices=(('Ford Ka','Ford Ka'),('Onix','Onix'),('HB20','HB20'),)
-    carro=forms.ChoiceField(choices=carroChoices,label='Qual carro?')
+    carro=forms.ChoiceField(choices=carroChoices,label='Qual carro?',required=False)
     nome = forms.CharField(label='Digite seu nome', max_length=100,
                            widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nome sobrenome', }))
     email = forms.EmailField(label='Digite seu email', max_length=100,
@@ -13,7 +13,7 @@ class ReservaCarro(forms.Form):
     horas_choice=(('07:50-08:50','07:50 - 08:50'),('08:51-09:50','08:51 - 09:50'),('09:51-10:50','09:51 - 10:50'),
            ('10:51-11:50','10:51 - 11:50'),('11:51-12:50','11:51 - 12:50'),('12:51-13:50','12:51 - 13:50'),
            ('13:51-14:50','13:51 - 14:50'),('14:51-15:50','14:51 - 15:50'),('15:51-17:15','15:51 - 17:15'))
-    horas=forms.ChoiceField(choices=horas_choice,label='Horário :',widget=forms.RadioSelect)
+    horas=forms.ChoiceField(choices=horas_choice,label='Horário :',widget=forms.RadioSelect(attrs={'class':'inline'}))
     repetir=forms.BooleanField(required=False,label='Repetir',)
 
 

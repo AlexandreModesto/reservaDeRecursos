@@ -9,35 +9,50 @@
 <script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
 <script defer src="{% static 'reserva/js/script.js' %}"></script>
 <div>
-    <form action="" method="post" id="formCar" class="">
+    <form action="" method="post" id="formCar" class="show-loading-after-submit">
         {% csrf_token %}
         <div class="row justify-content-md-center ">
-        {% for item in carroForm.visible_fields %}
-                <div class="col-md-auto fieldWrapper">
-                    <label class="label" for="{{carroForm.id_for_label}}">{{item.label}}</label>
-                    {{item}}
-            {% endfor %}
-             <br>
-            <div id="divRepetir" style="visibility:hidden">
-                <select name="nuRepetir" class="inline">
-                    <option value="1">1</option>
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                    <option value="5">5</option>
-                    <option value="6">6</option>
-                </select>
-                <select name="tpRepetir" class="inline">
-                    <option value="D">Dias</option>
-                    <option value="W">Semanas</option>
-                </select>
-                <div class="datepicker position-relative border-1 p-4">
-                    <input type="text" name="ate" id="ate">
-                </div>
+            <div class="col-md-auto fieldWrapper">
+                <h2>{{carro}}</h2>
+                <h4>Dia {{data}}</h4>
+                <label for="{{carroForm.nome.id_for_label}}" style="padding-top:10px;">{{carroForm.nome.label}}</label>
+                {{carroForm.nome}}
+                <label for="{{carroForm.email.id_for_label}}" style="padding-top:10px;">{{carroForm.email.label}}</label>
+                {{carroForm.email}}
+                <label for="{{carroForm.motivo.id_for_label}}" style="padding-top:10px;">{{carroForm.motivo.label}}</label>
+                {{carroForm.motivo}}
+                <label for="{{carroForm.repetir.id_for_label}}" style="padding-top:10px;">{{carroForm.repetir.label}}</label>
+                {{carroForm.repetir}}
             </div>
-            <br>
-            <input type="submit" class="btn btn-success" style="float:right;" value="Salvar">
+            <div  class="col-md-auto fieldWrapper">
+                <label for="{{carroForm.horas.id_for_label}}">{{carroForm.horas.label}}</label>
+                <div class="inline">{{carroForm.horas}}</div>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div  class="col-md-auto">
+                <div id="divRepetir" >
+                    <label for="nuRepetir">À cada:</label>
+                    <select name="nuRepetir" id="nuRepetir" class="inline" style="margin-top:5px">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    <select name="tpRepetir" class="inline">
+                        <option value="D">Dias</option>
+                        <option value="W">Semanas</option>
+                    </select>
+                    <div>
+                        <label for="ate">Até:</label>
+                        <input type="text" name="ate" id="ate" style="margin-top:10px">
+                    </div>
                 </div>
+            <br>
+            <input type="submit" class="btn btn-success" style="float:left;width:400px" value="Salvar">
+            </div>
         </div>
     </form>
 </div>
@@ -45,6 +60,11 @@
 <script>
 var date = new Date();
 date.setDate(date.getDate());
-$('#ate').datepicker();
+$('#ate').datepicker({
+    startDate: date,
+    autoclose: true,
+    daysOfWeekDisabled: [0, 6],
+    language: 'pt-BR',
+});
 </script>
 {% endblock %}
