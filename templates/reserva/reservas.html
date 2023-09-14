@@ -6,30 +6,39 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
 <script src="{% static '/js/bootstrap-datepicker.min.js' %}"></script>
 <script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
-
-{% if form %}
-<form action="" method="post">
-    {% csrf_token %}
-    {% for item in form.visible_fields %}
-    <label for="{{form.id_for_label}}">{{item.label}}</label>
-    {{item}}
-    {% endfor %}
-    <input type="submit" value="Pesquisar" class="btn btn-success">
-</form>
-{% endif %}
-<input style="display:none" id="car" value="{{carro}}">
-<input style="display:none" id="resultados">
-<div >
-    <form action="Sala" method="post">
-        {% csrf_token %}
-    <div id="datepicker" class="datepicker">
-        <input type="text" style="display:none" name="result" onchange="teste()" id="result">
+<div class="reservas__picker row justify-content-md">
+    <h1>Reservas &rarr; {{carro}}</h1>
+    <h3>Escolha uma data</h3>
+    <input style="display:none" id="car" value="{{carro}}">
+    <input style="display:none" id="resultados">
+    <div class="col-6">
+        <form>
+        <select id="items">
+            <option>Recursos: </option>
+            <option value="FordKa">Ford Ka</option>
+            <option value="Onix">Onix</option>
+            <option value="HB20">HB20</option>
+            <option value="Sala andar 1">Sala 1° andar</option>
+            <option value="Sala Terreo">Sala Térreo</option>
+            <option value="Sala Maior Conad">Sala Maior Conad</option>
+            <option value="Sala Menor Conad">Sala Menor Conad</option>
+            <option value="Auditorio">Auditório</option>
+        </select>
+        </form>
     </div>
-    <input type="submit" value="Enviar">
-    </form>
-</div>
-<div id="sspan" style="display:none">
-    <p id="spanP"></p>
+
+    <div class="col-6">
+        <form action="" method="post">
+            {% csrf_token %}
+        <div id="datepicker" class="datepicker">
+            <input type="text" style="display:none" name="result" onchange="teste()" id="result">
+        </div>
+        <input type="submit" value="Enviar">
+        </form>
+    </div>
+    <div id="sspan" style="display:none">
+        <p id="spanP"></p>
+    </div>
 </div>
 <script>
 async function main(){
@@ -84,6 +93,11 @@ async function teste(){
         }
     }
 };
-
+$(document).ready(function(){
+    $('#items').on('change',function(){
+        var itemsName = $(this).children("option:selected").val();
+        window.location.href=`http://127.0.0.1:8000/reservas/${itemsName}`
+    });
+});
 </script>
 {% endblock %}

@@ -11,7 +11,9 @@ from datetime import date,datetime,timedelta
 
 
 def index(request):
-    return render(request,'reserva/index.html')
+    carro_list=['FordKa','Onix','HB20']
+    sala_list=['Sala Terreo','Sala andar 1','Sala Maior Conad','Sala Menor Conad','Auditório']
+    return render(request,'reserva/index.html',{'carro_list':carro_list,'sala_list':sala_list})
 
 def carro(request,result,carro):
     carroForm = ReservaCarro()
@@ -260,15 +262,15 @@ def return_number(mes):
             'Agosto': 8, 'Setembro': 9, 'Outubro': 10, 'Novembro': 11, 'Dezembro': 12}
     return dict[mes]
 
-def reservas(request,carro):
+def reservas(request,item):
     form=ReservasForm()
     if request.method =='POST':
         result = request.POST.get('result',None)
         result = result.replace('/','-')
-        return redirect('carros',result,carro)
-    return render(request,'reserva/reservas.html',{'carro':carro})
+        return redirect('carros',result,item)
+    return render(request,'reserva/reservas.html',{'carro':item})
 
-def reservas_json_carro(request,carro):
+def reservas_json(request,item):
     resultadosFordKa = {0: {
                         "mes":9,
                         "dia":[4,5,6],
@@ -292,12 +294,55 @@ def reservas_json_carro(request,carro):
         "autor": ["autor1", "autor2", "autor3"]
     }
     }
-    resultadosHB={}
-    if carro == 'FordKa':
+    resultadosHB20={}
+    resultadosSala1 = {}
+    resultadosSalaT = {}
+    resultadosSalaConadM = {0: {
+                        "mes":9,
+                        "dia":[4,5,6],
+                        "datas":["04/10/2023","05/10/2023","06/10/2023"],
+                        "motivo":["motivo 04/10/2023","motivo 05/10/2023","motivo 06/10/2023"],
+                        "autor":["autor1","autor2","autor3"]
+                      },
+                  1: {
+                        "mes":8,
+                        "dia":[11,12],
+                        "datas":["11/09/2023","12/09/2023"],
+                        "motivo":["motivo 11/09/2023","motivo 12/09/2023"],
+                        "autor":["autor1","autor2"]
+                     }
+                  }
+    resultadosSalaConadm = {}
+    resultadosAuditorio = {0: {
+                        "mes":9,
+                        "dia":[4,5,6],
+                        "datas":["04/10/2023","05/10/2023","06/10/2023"],
+                        "motivo":["motivo 04/10/2023","motivo 05/10/2023","motivo 06/10/2023"],
+                        "autor":["autor1","autor2","autor3"]
+                      },
+                  1: {
+                        "mes":8,
+                        "dia":[11,12],
+                        "datas":["11/09/2023","12/09/2023"],
+                        "motivo":["motivo 11/09/2023","motivo 12/09/2023"],
+                        "autor":["autor1","autor2"]
+                     }
+                  }
+    if item == 'FordKa':
         return JsonResponse(resultadosFordKa)
-    elif carro == 'Onix':
+    elif item == 'Onix':
         return JsonResponse(resultadosOnix)
-    else:return JsonResponse(resultadosHB)
+    elif item == 'HB20':
+        return JsonResponse(resultadosHB20)
+    elif item == 'Sala andar 1':
+        return JsonResponse(resultadosSala1)
+    elif item == 'Sala Terreo':
+        return JsonResponse(resultadosSalaT)
+    elif item == 'Sala Maior Conad':
+        return JsonResponse(resultadosSalaConadM)
+    elif item == 'Sala Menor Conad':
+        return JsonResponse(resultadosSalaConadm)
+    else:return JsonResponse(resultadosAuditorio)
 def reserva_mes(request,db,mes):
     if not db == 'Sala':
         retorno = Carro.objects.filter(dataEnd__month__lte=return_number(mes))

@@ -5,11 +5,34 @@
     <button type="button" class="btn btn-success btnLogin" style="width:200px" onclick="location.href='http://127.0.0.1:8000/login'">Login</button>
 </div>
 <h1>Reserva de Recursos</h1>
-<h3>Qual recurso deseja reservar?</h3>
-<button type="submit" onclick="location.href='http://127.0.0.1:8000/';" class="btn btn-outline-primary btnIndex">Sala</button>
-<button type="button" onclick="location.href='http://127.0.0.1:8000/';"class="btn btn-outline-primary btnIndex">Carro</button>
-
-<button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/reservas/Fordka"> Ford Ka</button>
-<button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/reservas/Onix">Onix</button>
-<button type="button" class="btn btn-primary" onclick="location.href='http://127.0.0.1:8000/reservas/HB20">HB20</button>
+<br>
+<div class="dropdown">
+    <button class="btn btn-primary btnIndex">Reservas para Carro</button>
+    <div class="dropdown-content ">
+        {% for carro in carro_list %}
+            <a href="{% url 'reservas' carro %}">{{carro}}</a>
+        {% endfor %}
+    </div>
+</div>
+<div class="dropdown">
+    <button class="btn btn-primary btnIndex">Reservas para Salas de Reunião/Auditório</button>
+    <br><div class="dropdown-content ">
+        {% for sala in sala_list %}
+            <a href="{% url 'reservas' sala %}">{{sala}}</a>
+        {% endfor %}
+    </div>
+</div>
+<br>
+<div class="update">
+    <div class="jumbotron" style="border:solid 1px #EBEBF2;border-radius:10px;">
+        <h3 class="display-4 alert alert-success" role="alert">Atualizações</h3>
+        <em class="lead">&emsp;version 1.0</em>
+        <hr class="my-4" style="margin-left:2.5%;width:95%;">
+        <p class="lead">&emsp;Criado recurso para Reserva de recurso</p>
+        <hr class="my-5" style="margin-left:45%;width:10%;">
+        <em class="lead">&emsp;version 0.3</em>
+        <hr class="my-4" style="margin-left:2.5%;width:95%;">
+        <p class="lead">&emsp;Criado recurso para Reserva de recurso</p>
+    </div>
+</div>
 {% endblock %}
