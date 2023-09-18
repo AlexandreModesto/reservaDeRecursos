@@ -7,11 +7,10 @@
 <script src="{% static '/js/bootstrap-datepicker.min.js' %}"></script>
 <script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
 <div class="reservas__picker row justify-content-md">
-    <h1>Reservas &rarr; {{carro}}</h1>
-    <h3>Escolha uma data</h3>
+    <h1>Reservas &rArr; {{carro}}</h1>
     <input style="display:none" id="car" value="{{carro}}">
     <input style="display:none" id="resultados">
-    <div class="col-6">
+    <div class="">
         <form>
         <select id="items">
             <option>Recursos: </option>
@@ -26,7 +25,23 @@
         </select>
         </form>
     </div>
-
+    <div class="col-6">
+    <h3>Escolha uma data</h3>
+    <h4>Se ela tiver reservas, aparecerá abaixo &darr; </h4>
+        <div id="sspan" style="display:none">
+        <table class="table table-bordered">
+            <thead class="table-dark ">
+            <tr>
+                <th scope="col">Reservista</th>
+                <th scope="col">Motivo</th>
+                <th scope="col">Hora</th>
+            </tr>
+            </thead>
+            <tbody id="spanT">
+            </tbody>
+        </table>
+    </div>
+    </div>
     <div class="col-6">
         <form action="" method="post">
             {% csrf_token %}
@@ -35,9 +50,6 @@
         </div>
         <input type="submit" value="Enviar">
         </form>
-    </div>
-    <div id="sspan" style="display:none">
-        <p id="spanP"></p>
     </div>
 </div>
 <script>
@@ -80,9 +92,23 @@ async function teste(){
     for( i = 0;i<=items.length;i++){
         for(j=0;j<=items.length;j++){
             if(teste === items[i]["datas"][j]){
+                const varTexto = document.getElementById('spanT');
+                varTexto.innerHTML="";
+
+                var ano=items[i]["datas"][j].slice(6);
+                var mes=items[i]["datas"][j].substring(3,5);
+                var dia=items[i]["datas"][j].substring(0,2);
+                var dataTabela=ano+'-'+mes+'-'+dia
+                const repo = await axios.get(`http://127.0.0.1:8000/tabela/${dataTabela}`)
+
                 sspan.style.display="inline"
-                const varTexto = document.getElementById('spanP');
-                varTexto.innerHTML =`<p>motivo ${items[i]['motivo'][j]} autor ${items[i]['autor'][j]}</p>`;
+                for (c=0;c<repo.data.solicitante.length;c++){
+                    const tr = document.createElement('tr');
+                    tr.innerHTML +=`<th scope="row">${repo.data.solicitante[c]}</th>`;
+                    tr.innerHTML +=`<td class="table">${repo.data.motivo[c]}</td>`;
+                    tr.innerHTML +=`<td class="table">${repo.data.hora[c]}</td>`;
+                    varTexto.appendChild(tr);
+                    }
                 break;
             }else{
                 const sspan = document.getElementById('sspan').style.display="none";

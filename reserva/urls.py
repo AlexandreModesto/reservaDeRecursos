@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,carro,sala, login, aprovar_carro,aprovar_sala,reservas,reserva_mes,reservas_json
+from .views import index,carro,sala, login, aprovar_carro,aprovar_sala,reservas,reserva_mes,reservas_json,reservas_get
 
 urlpatterns = [
     path('', index,name='index'),
@@ -10,5 +10,6 @@ urlpatterns = [
     path('aprovarSala',aprovar_sala,name='aprovarSala'),
     path('reservas/<str:item>',reservas,name='reservas'),
     path('reservas/<db>/<mes>',reserva_mes,name='reservaMes'),
+    path('tabela/<str:dat>',reservas_get,name='reservasGET'),
     path('json/<str:item>',reservas_json,name='json')
 ]

@@ -3,6 +3,8 @@ import django.contrib.auth
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import Carro,Sala
 from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm
 from django.core.mail import EmailMessage
@@ -270,6 +272,18 @@ def reservas(request,item):
         return redirect('carros',result,item)
     return render(request,'reserva/reservas.html',{'carro':item})
 
+def reservas_get(request,dat):
+    tabela=Carro.objects.filter(data=dat).values()
+    table = {'solicitante':'', 'motivo':'', 'hora':''}
+    for item in tabela:
+        table['solicitante']+=' '+item['solicitante']
+        table['motivo'] += ' '+str(item['motivo'])
+        table['hora'] += ' '+item['hora']
+    table['solicitante'] = table['solicitante'].split()
+    table['motivo'] = table['motivo'].split()
+    table['hora'] = table['hora'].split()
+    return JsonResponse(table,safe=False)
+
 def reservas_json(request,item):
     resultadosFordKa = {0: {
                         "mes":9,
@@ -280,9 +294,9 @@ def reservas_json(request,item):
                       },
                   1: {
                         "mes":8,
-                        "dia":[11,12],
-                        "datas":["11/09/2023","12/09/2023"],
-                        "motivo":["motivo 11/09/2023","motivo 12/09/2023"],
+                        "dia":[16,12],
+                        "datas":["16/09/2023","12/09/2023"],
+                        "motivo":["motivo 16/09/2023","motivo 12/09/2023"],
                         "autor":["autor1","autor2"]
                      }
                   }
