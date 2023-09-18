@@ -1,13 +1,14 @@
 {% extends 'reserva/base.html' %}
 {% load static %}
 {% block content %}
-{% if request.user.is_authenticated %}
-    {% if not request.user.endswith == m %}
-        <meta http-equiv="refresh" content="0; URL={% url 'aprovarCarro' %}" />
-    {% else %}
-        <meta http-equiv="refresh" content="0; URL={% url 'aprovarSala' %}" />
-    {% endif %}
-{% else %}
+<!--{% if request.user.is_authenticated %}-->
+<!--{% csrf_token %}-->
+<!--    {% if not request.user.endswith == m or not request.user.endswith == sub %}-->
+<!--        <meta http-equiv="refresh" content="0; URL={% url 'aprovarCarro' %}" />-->
+<!--    {% else %}-->
+<!--        <meta http-equiv="refresh" content="0; URL={% url 'aprovarSala' %}" />-->
+<!--    {% endif %}-->
+<!--{% else %}-->
 <form action="" method="post">
     {% csrf_token %}
     <div class="row justify-content-md-center">

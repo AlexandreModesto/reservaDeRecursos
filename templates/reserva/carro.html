@@ -8,13 +8,13 @@
 <script src="{% static '/js/bootstrap-datepicker.min.js' %}"></script>
 <script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
 <script defer src="{% static 'reserva/js/script.js' %}"></script>
-<div>
+<div class="carro__picker">
     <form action="" method="post" id="formCar" class="show-loading-after-submit">
         {% csrf_token %}
         <div class="row justify-content-md-center ">
             <div class="col-md-auto fieldWrapper">
-                <h2>{{carro}}</h2>
-                <h4>Dia {{data}}</h4>
+                <h2><span class="badge text-bg-success" style="margin-top:10px;">{{carro}}</span></h2>
+                <h4><span class="badge text-bg-success">Dia {{data}}</span></h4>
                 <label for="{{carroForm.nome.id_for_label}}" style="padding-top:10px;">{{carroForm.nome.label}}</label>
                 {{carroForm.nome}}
                 <label for="{{carroForm.email.id_for_label}}" style="padding-top:10px;">{{carroForm.email.label}}</label>
@@ -24,7 +24,7 @@
                 <label for="{{carroForm.repetir.id_for_label}}" style="padding-top:10px;">{{carroForm.repetir.label}}</label>
                 {{carroForm.repetir}}
             </div>
-            <div  class="col-md-auto fieldWrapper">
+            <div  class="col-md-auto fieldWrapper" style="margin-top:10px;">
                 <label for="{{carroForm.horas.id_for_label}}">{{carroForm.horas.label}}</label>
                 <div class="inline">{{carroForm.horas}}</div>
             </div>

@@ -3,13 +3,13 @@ from .views import index,carro,sala, login, aprovar_carro,aprovar_sala,reservas,
 
 urlpatterns = [
     path('', index,name='index'),
-    path('carros/<str:carro>/<str:result>',carro,name='carros'),
+    path('carros/<str:result>/<str:carro>',carro,name='carros'),
     path('salas',sala,name='salas'),
     path('login',login,name='login'),
     path('aprovarCarro',aprovar_carro,name='aprovarCarro'),
     path('aprovarSala',aprovar_sala,name='aprovarSala'),
     path('reservas/<str:item>',reservas,name='reservas'),
-    path('reservas/<db>/<mes>',reserva_mes,name='reservaMes'),
-    path('tabela/<str:dat>',reservas_get,name='reservasGET'),
+    path('reservas-atuais/<str:db>',reserva_mes,name='reservaMes'),
+    path('tabela/<str:carro>/<str:dat>',reservas_get,name='reservasGET'),
     path('json/<str:item>',reservas_json,name='json')
 ]

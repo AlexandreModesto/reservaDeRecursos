@@ -20,6 +20,7 @@ def index(request):
 def carro(request,result,carro):
     carroForm = ReservaCarro()
     result = result.split('-')
+    print(carro)
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
     if request.method == 'POST':
@@ -141,10 +142,10 @@ def sala(request):
 
 
 def login(request):
-    # if request.user.is_authenticated:
-    #     if not request.user.username.endswith('m'):
-    #         return redirect('aprovarCarro')
-    #     else:return redirect('aprovarSala')
+    if request.user.is_authenticated:
+        if not request.user.username.endswith('m'):
+            return redirect('aprovarCarro')
+        else:return redirect('aprovarSala')
     login = LoginForms()
     if request.method=='POST':
         loginForm = LoginForms(request.POST)
@@ -168,14 +169,11 @@ def aprovar_carro(request):
     if not request.user.username.endswith('a'):
         return redirect('login')
     retorna_soli = Carro.objects.filter(aprovado=None)
-    carroObjsTrue = Carro.objects.filter(aprovado=True, dataInit__gte=date.today()).values()
-    carroObjsNone = Carro.objects.filter(aprovado=None, dataInit__gte=date.today()).values()
-    modelComb = carroObjsNone | carroObjsTrue
-    model = modelComb.order_by('-dataInit')
+
     if request.method =="POST":
         check = request.POST.get('botao')
         id = request.POST.get('id')
-        obj = Carro.objects.filter(id=id).values('carro','dataInit','dataEnd','horaInit','horaEnd','email_solicitante')
+        obj = Carro.objects.filter(id=id).values('carro','data','hora','email_solicitante')
         valores=[]
         for campo,valor in obj[0].items():
             valores.append(valor)
@@ -205,7 +203,7 @@ def aprovar_carro(request):
             msg.send()
             messages.success(request, 'Reprovado')
         return redirect('aprovarCarro')
-    return render(request,'reserva/aprovarCarro.html',{'db':retorna_soli,'model':model})
+    return render(request,'reserva/aprovarCarro.html',{'db':retorna_soli})
 
 def aprovar_sala(request):
     if not request.user.username.endswith('m'):
@@ -272,8 +270,8 @@ def reservas(request,item):
         return redirect('carros',result,item)
     return render(request,'reserva/reservas.html',{'carro':item})
 
-def reservas_get(request,dat):
-    tabela=Carro.objects.filter(data=dat).values()
+def reservas_get(request,carro,dat):
+    tabela=Carro.objects.filter(data=dat,carro=carro).values()
     table = {'solicitante':'', 'motivo':'', 'hora':''}
     for item in tabela:
         table['solicitante']+=' '+item['solicitante']
@@ -357,14 +355,13 @@ def reservas_json(request,item):
     elif item == 'Sala Menor Conad':
         return JsonResponse(resultadosSalaConadm)
     else:return JsonResponse(resultadosAuditorio)
-def reserva_mes(request,db,mes):
+
+def reserva_mes(request,db):
     if not db == 'Sala':
-        retorno = Carro.objects.filter(dataEnd__month__lte=return_number(mes))
-        retorno = retorno.filter(dataEnd__month__gte=return_number(mes))
+        retorno = Carro.objects.filter(data__month__gte=datetime.today().month)
         return render(request, 'reserva/reservasCarro.html', {'model': retorno})
     else:
-        retorno = Sala.objects.filter(dataEnd__month__lte=return_number(mes))
-        retorno = retorno.filter(dataEnd__month__gte=return_number(mes))
+        retorno = Sala.objects.filter(data__month__gte=datetime.now().month)
         return render(request, 'reserva/reservasSala.html', {'model': retorno})
 
 def checador_de_datas(db,obj,dataInit,dataEnd,horaInit):

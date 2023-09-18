@@ -7,7 +7,8 @@
 <script src="{% static '/js/bootstrap-datepicker.min.js' %}"></script>
 <script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
 <div class="reservas__picker row justify-content-md">
-    <h1>Reservas &rArr; {{carro}}</h1>
+    <h1><span class="badge text-bg-light" style="margin-top:10px;">Reservas &rArr; {{carro}}</span></h1>
+    <h5>Não é o recurso que procura?<br>troque aqui &darr;</h5>
     <input style="display:none" id="car" value="{{carro}}">
     <input style="display:none" id="resultados">
     <div class="">
@@ -26,8 +27,8 @@
         </form>
     </div>
     <div class="col-6">
-    <h3>Escolha uma data</h3>
-    <h4>Se ela tiver reservas, aparecerá abaixo &darr; </h4>
+        <h3><span class="badge text-bg-light">Escolha uma data</span></h3>
+        <h5><em>Se ela tiver reservas, aparecerá abaixo</em> &darr; </h5>
         <div id="sspan" style="display:none">
         <table class="table table-bordered">
             <thead class="table-dark ">
@@ -48,7 +49,7 @@
         <div id="datepicker" class="datepicker">
             <input type="text" style="display:none" name="result" onchange="teste()" id="result">
         </div>
-        <input type="submit" value="Enviar">
+        <input type="submit" class="btn btn-success btn__reserva"  value="Salvar">
         </form>
     </div>
 </div>
@@ -83,8 +84,8 @@ async function main(){
 main()
 
 async function teste(){
-    const car = document.getElementById('car');
-    const response = await axios.get(`http://127.0.0.1:8000/json/${car.value}`);
+    const car = document.getElementById('car').value;
+    const response = await axios.get(`http://127.0.0.1:8000/json/${car}`);
     const data = response.data;
     const items = Object.values(data);
     const teste= document.getElementById('result').value
@@ -99,7 +100,7 @@ async function teste(){
                 var mes=items[i]["datas"][j].substring(3,5);
                 var dia=items[i]["datas"][j].substring(0,2);
                 var dataTabela=ano+'-'+mes+'-'+dia
-                const repo = await axios.get(`http://127.0.0.1:8000/tabela/${dataTabela}`)
+                const repo = await axios.get(`http://127.0.0.1:8000/tabela/${car}/${dataTabela}`)
 
                 sspan.style.display="inline"
                 for (c=0;c<repo.data.solicitante.length;c++){
