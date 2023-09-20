@@ -41,16 +41,24 @@ def carro(request,result,carro):
                 nuRepetir = request.POST.get('nuRepetir', None)  # numero
                 tpRepetir = request.POST.get('tpRepetir', None)  # D/S
                 ate = request.POST.get('ate', None)
+                ate_l=str(ate).split('/')
+                ate_s = f'{ate_l[2]}-{ate_l[1]}-{ate_l[0]}'
                 print()
-                ate_f = datetime.strptime(ate, '%Y-%m-%d').date()
+                ate_f = datetime.strptime(ate_s, '%Y-%m-%d').date()
 
                 prox_data = data_f
                 if tpRepetir == 'D':
+
                     print(prox_data)
                     r = Carro(carro=carro, solicitante=nome, email_solicitante=email,
                               data=str(prox_data), hora=hora)
                     r.save()
-                    for i in range(0,(ate_f.day-data_f.day)+1, int(nuRepetir)):
+
+                    if ate_f.month > data_f.month:
+                        calculo=(data_f.day-ate_f.day)+1
+                    else:
+                        calculo = (ate_f.day - data_f.day) + 1
+                    for i in range(0,calculo, int(nuRepetir)):
                         prox_data=prox_data + timedelta(days=int(nuRepetir))
                         if prox_data > ate_f:
                             break
@@ -111,8 +119,10 @@ def sala(request,result,sala):
                 nuRepetir = request.POST.get('nuRepetir', None)  # numero
                 tpRepetir = request.POST.get('tpRepetir', None)  # D/S
                 ate = request.POST.get('ate', None)
+                ate_l = str(ate).split('/')
+                ate_s = f'{ate_l[2]}-{ate_l[1]}-{ate_l[0]}'
                 print()
-                ate_f = datetime.strptime(ate, '%Y-%m-%d').date()
+                ate_f = datetime.strptime(ate_s, '%Y-%m-%d').date()
 
                 prox_data = data_f
                 if tpRepetir == 'D':
@@ -120,7 +130,12 @@ def sala(request,result,sala):
                     r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
                               data=str(prox_data), hora=hora)
                     r.save()
-                    for i in range(0,(ate_f.day-data_f.day)+1, int(nuRepetir)):
+
+                    if ate_f.month > data_f.month:
+                        calculo=(data_f.day-ate_f.day)+1
+                    else:
+                        calculo = (ate_f.day - data_f.day) + 1
+                    for i in range(0,calculo, int(nuRepetir)):
                         prox_data=prox_data + timedelta(days=int(nuRepetir))
                         if prox_data > ate_f:
                             break

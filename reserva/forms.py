@@ -19,7 +19,7 @@ class ReservaCarro(forms.Form):
 
 class ReservaSala(forms.Form):
     salaChoices=(('Sala Terreo','Sala no Terreo'),('Sala andar 1','Sala do 1°andar'),('Sala Conad Maior','Sala Maior do Conad'),('Sala Conad Menor','Sala Menor do Conad'),('Auditório','Auditório'))
-    salas=forms.ChoiceField(choices=salaChoices,label='Qual sala?')
+    salas=forms.ChoiceField(choices=salaChoices,label='Qual sala?',required=False)
     nome = forms.CharField(label='Digite seu nome', max_length=100,
                            widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Nome sobrenome',}))
     email = forms.EmailField(label='Digite seu email', max_length=100,
@@ -32,9 +32,9 @@ class ReservaSala(forms.Form):
              ('13:01-13:30', '13:01 - 13:30'), ('13:31-14:00', '13:31 - 14:00'), ('14:01-14:30', '14:01 - 14:30'),
              ('14:31-15:00', '14:31 - 15:00'), ('15:01-15:30', '15:01 - 15:30'), ('15:31-16:00', '15:31 - 16:00'),
              ('16:01-16:30', '16:01 - 16:30'), ('16:31-17:15', '16:31 - 17:15'))
-    horas = forms.ChoiceField(choices=horas_choice, label='Horário :', widget=forms.RadioSelect())
+    horas = forms.ChoiceField(choices=horas_choice, label='Horário :', widget=forms.RadioSelect(),required=False)
     auditorio_choice = (('08:00-12:00', '08:00 - 12:00'), ('12:01-17:00', '12:01 - 17:00'), ('17:01-22:50', '17:01 - 22:50'))
-    auditorio = forms.ChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.RadioSelect())
+    auditorio = forms.ChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.RadioSelect(),required=False)
     repetir = forms.BooleanField(required=False, label='Repetir', )
 
 
