@@ -13,7 +13,7 @@ class ReservaCarro(forms.Form):
     horas_choice=(('07:50-08:50','07:50 - 08:50'),('08:51-09:50','08:51 - 09:50'),('09:51-10:50','09:51 - 10:50'),
            ('10:51-11:50','10:51 - 11:50'),('11:51-12:50','11:51 - 12:50'),('12:51-13:50','12:51 - 13:50'),
            ('13:51-14:50','13:51 - 14:50'),('14:51-15:50','14:51 - 15:50'),('15:51-17:15','15:51 - 17:15'))
-    horas=forms.ChoiceField(choices=horas_choice,label='Horário :',widget=forms.RadioSelect(attrs={'class':'inline'}))
+    horas=forms.ChoiceField(choices=horas_choice,label='Horário :',widget=forms.RadioSelect())
     repetir=forms.BooleanField(required=False,label='Repetir',)
 
 
@@ -32,9 +32,10 @@ class ReservaSala(forms.Form):
              ('13:01-13:30', '13:01 - 13:30'), ('13:31-14:00', '13:31 - 14:00'), ('14:01-14:30', '14:01 - 14:30'),
              ('14:31-15:00', '14:31 - 15:00'), ('15:01-15:30', '15:01 - 15:30'), ('15:31-16:00', '15:31 - 16:00'),
              ('16:01-16:30', '16:01 - 16:30'), ('16:31-17:15', '16:31 - 17:15'))
-    horas = forms.ChoiceField(choices=horas_choice, label='Horário :', widget=forms.RadioSelect(attrs={'class':'form-control','style':'display:inline'}))
+    horas = forms.ChoiceField(choices=horas_choice, label='Horário :', widget=forms.RadioSelect())
     auditorio_choice = (('08:00-12:00', '08:00 - 12:00'), ('12:01-17:00', '12:01 - 17:00'), ('17:01-22:50', '17:01 - 22:50'))
-    auditorio = forms.ChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.RadioSelect(attrs={'class':'form-control','style':'display:none'}))
+    auditorio = forms.ChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.RadioSelect())
+    repetir = forms.BooleanField(required=False, label='Repetir', )
 
 
 # def return_options()

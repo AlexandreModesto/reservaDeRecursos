@@ -141,3 +141,9 @@ EMAIL_HOST = str(os.getenv('EMAIL_HOST'))
 EMAIL_HOST_PASSWORD = str(os.getenv('EMAIL_HOST_PASSWORD'))
 EMAIL_USE_SSL = str(os.getenv('EMAIL_USE_TLS'))
 EMAIL_PORT = str(os.getenv('EMAIL_PORT'))
+
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS={
+    messages.ERROR: 'danger',
+    messages.SUCCESS: 'success'
+}

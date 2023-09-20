@@ -1,25 +1,18 @@
 {% extends 'reserva/base.html' %}
 {% load static %}
 {% block content %}
-<!--{% if request.user.is_authenticated %}-->
-<!--{% csrf_token %}-->
-<!--    {% if not request.user.endswith == m or not request.user.endswith == sub %}-->
-<!--        <meta http-equiv="refresh" content="0; URL={% url 'aprovarCarro' %}" />-->
-<!--    {% else %}-->
-<!--        <meta http-equiv="refresh" content="0; URL={% url 'aprovarSala' %}" />-->
-<!--    {% endif %}-->
-<!--{% else %}-->
+<div class="login__picker">
 <form action="" method="post">
     {% csrf_token %}
     <div class="row justify-content-md-center">
     {% for item in login.visible_fields %}
             <div class="col-md-auto formsala">
-                <label class='label' for="{{login.id_for_label}}">{{item.label}}</label>
+                <label class='label' for="{{login.id_for_label}}"><span class="badge text-bg-light" style="font-size:15px;margin-bottom:5px;">{{item.label}}</span></label>
                 {{item}}
         {% endfor %}
-    <input type="submit" class="btn btn-success" value="Enviar" style="margin-top:10px;">
+    <input type="submit" class="btn btn-success" value="Enviar" style="margin-top:10px;width:240px;">
             </div>
     </div>
 </form>
-{% endif %}
+</div>
 {% endblock %}

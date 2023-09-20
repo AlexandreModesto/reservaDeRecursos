@@ -11,6 +11,7 @@ class Carro(models.Model):
     data = models.DateField(null=True, blank=True)
     hora = models.CharField(max_length=11,null=True, blank=True)
     aprovado = models.BooleanField(null=True, blank=True)
+    created_at=models.DateField(auto_now_add=True)
 
     class Meta:
         abstract = False
@@ -27,6 +28,7 @@ class Sala(models.Model):
     data = models.DateField(null=True, blank=True)
     hora=models.CharField(max_length=11,null=True,blank=True)
     aprovado=models.BooleanField(null=True,blank=True)
+    created_at = models.DateField(auto_now_add=True)
 
     class Meta:
         abstract = False

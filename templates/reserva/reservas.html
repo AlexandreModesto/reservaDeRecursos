@@ -9,7 +9,7 @@
 <div class="reservas__picker row justify-content-md">
     <h1><span class="badge text-bg-light" style="margin-top:10px;">Reservas &rArr; {{carro}}</span></h1>
     <h5>Não é o recurso que procura?<br>troque aqui &darr;</h5>
-    <input style="display:none" id="car" value="{{carro}}">
+    <input style="display:none" id="item" value="{{item}}">
     <input style="display:none" id="resultados">
     <div class="">
         <form>
@@ -55,13 +55,12 @@
 </div>
 <script>
 async function main(){
- const car = document.getElementById('car');
- const response = await axios.get(`http://127.0.0.1:8000/json/${car.value}`);
+ const item = document.getElementById('item');
+ const response = await axios.get(`http://127.0.0.1:8000/json/${item.value}`);
  const data = response.data;
  const items = Object.values(data);
  var date = new Date();
  date.setDate(date.getDate());
- const buttonCar = document.getElementById('btncar')
     $('#datepicker').datepicker({
         startDate: date,
         daysOfWeekDisabled: [0, 6],
@@ -84,8 +83,8 @@ async function main(){
 main()
 
 async function teste(){
-    const car = document.getElementById('car').value;
-    const response = await axios.get(`http://127.0.0.1:8000/json/${car}`);
+    const item = document.getElementById('item').value;
+    const response = await axios.get(`http://127.0.0.1:8000/json/${item}`);
     const data = response.data;
     const items = Object.values(data);
     const teste= document.getElementById('result').value
@@ -100,7 +99,7 @@ async function teste(){
                 var mes=items[i]["datas"][j].substring(3,5);
                 var dia=items[i]["datas"][j].substring(0,2);
                 var dataTabela=ano+'-'+mes+'-'+dia
-                const repo = await axios.get(`http://127.0.0.1:8000/tabela/${car}/${dataTabela}`)
+                const repo = await axios.get(`http://127.0.0.1:8000/tabela/${item}/${dataTabela}`)
 
                 sspan.style.display="inline"
                 for (c=0;c<repo.data.solicitante.length;c++){

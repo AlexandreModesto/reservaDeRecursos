@@ -3,7 +3,7 @@ import django.contrib.auth
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
-from django.views.decorators.csrf import csrf_exempt
+
 
 from .models import Carro,Sala
 from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm
@@ -76,7 +76,7 @@ def carro(request,result,carro):
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Nova Solicitação de Reserva</h1>
-                                            <p><strong>{nome} esta solicitando reserva de carro pro dia <strong>{data}</strong> horário: <strong>{hora}</strong></p>
+                                            <p><strong>{nome} esta solicitando reserva do {carro} pro dia <strong>{data}</strong> horário: <strong>{hora}</strong></p>
                                             <p>Para aprovar ou não clique <a href='10.110.209.15/aprovarSala'>aqui</a></p>""",
                 None,
                 ['xandy.modest14@gmail.com'])
@@ -87,58 +87,75 @@ def carro(request,result,carro):
         print(carroForm.errors.as_data())
     return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data})
 
-def sala(request):
+def sala(request,result,sala):
     salaForm = ReservaSala()
-    salaObjsTrue = Sala.objects.filter(aprovado=True, dataInit__gte=date.today()).values()
-    salaObjsNone = Sala.objects.filter(aprovado=None, dataInit__gte=date.today()).values()
-    modelComb = salaObjsNone | salaObjsTrue
-    model = modelComb.order_by('-dataInit')
+    result = result.split('-')
+    print(sala)
+    data = f'{result[0]}/{result[1]}/{result[2]}'
+    n_result = f'{result[2]}/{result[1]}/{result[0]}'
     if request.method == 'POST':
         salaForm = ReservaSala(request.POST)
         if salaForm.is_valid():
-            sala=salaForm.cleaned_data['salas']
-            dataInit=request.POST.get('dataInit',None)
-            dataEnd = request.POST.get('dataEnd', None)
             nome=salaForm.cleaned_data['nome']
             email=salaForm.cleaned_data['email']
-            datas=[sala,dataInit,dataEnd,nome,email]
-        return redirect('sala_pt_2',datas)
-    return render(request, 'reserva/sala.html', {'salaForm': salaForm, 'model': model})
+            hora=salaForm.cleaned_data['horas']
+            rep=salaForm.cleaned_data['repetir']
 
-# def sala_pt_2(request,datas):
-#     if request.method == 'POST':
-#         sala = datas[0]
-#         dataInit = datas[1]
-#         dataEnd = datas[2]
-#         nome = datas[3]
-#         email = datas[4]
-#         form =
-#         if form.is_valid():
-#             horaInit = form.cleaned_data['horaInit']
-#             horaEnd = form.cleaned_data['horaEnd']
-#             if sala=='Sala Conad Menor' or sala=='Sala Conad Maior':
-#                 apro='Maria Valdirene'
-#                 mail='valdirene.monteiro@sicoob.com.br'
-#             elif sala == 'Auditório':
-#                 apro='Maria José'
-#                 mail='maze.teixeira@sicoob.com.br'
-#             else:
-#                 apro = 'Mayara Alvarenga'
-#                 mail = 'mayara.alvarenga@sicoob.com.br'
-#             checador_de_datas('Sala',sala,dataInit,dataEnd,horaInit)
-#             s=Sala(sala=sala,aprovador=apro,email=mail,solicitante=nome,email_solicitante=email,dataInit=dataInit,dataEnd=dataEnd,horaEnd=horaEnd,horaInit=horaInit)
-#             s.save()
-#             msg = EmailMessage(
-#                 "Solicitação de Reserva",
-#                 fr"""<h1>Nova Solicitação de Reserva</h1>
-#                                     <p><strong>{nome} esta solicitando reserva do(a) {sala} pro dia <strong>{dataInit}</strong> até <strong>{dataEnd}</strong> horário: <strong>{horaInit}</strong> até <strong>{horaEnd}</strong></p>
-#                                     <p>Para aprovar ou não clique <a href='10.110.209.15/aprovarSala'>aqui</a></p>""",
-#                 None,
-#                 ['teste@gmail.com'])
-#             msg.content_subtype = "html"
-#             msg.send()
-#             messages.success(request, 'Reserva encaminhada para Aprovação')
-#             return redirect('index')
+
+            data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
+            if not rep:
+                print(data_f)
+                r=Sala(sala=sala,solicitante=nome,email_solicitante=email,data=data_f,hora=hora)
+                r.save()
+            else:
+                nuRepetir = request.POST.get('nuRepetir', None)  # numero
+                tpRepetir = request.POST.get('tpRepetir', None)  # D/S
+                ate = request.POST.get('ate', None)
+                print()
+                ate_f = datetime.strptime(ate, '%Y-%m-%d').date()
+
+                prox_data = data_f
+                if tpRepetir == 'D':
+                    print(prox_data)
+                    r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
+                              data=str(prox_data), hora=hora)
+                    r.save()
+                    for i in range(0,(ate_f.day-data_f.day)+1, int(nuRepetir)):
+                        prox_data=prox_data + timedelta(days=int(nuRepetir))
+                        if prox_data > ate_f:
+                            break
+                        print(prox_data)
+                        r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
+                                  data=str(prox_data), hora=hora)
+                        r.save()
+                else:
+                    print(prox_data)
+                    r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
+                              data=str(prox_data), hora=hora)
+                    r.save()
+                    finalRange = ate_f - data_f
+                    for i in range(7, finalRange.days+1,7):
+                        prox_data = prox_data + timedelta(weeks=int(nuRepetir))
+                        if prox_data > ate_f:
+                            break
+                        print(prox_data)
+                        r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
+                                  data=str(prox_data), hora=hora)
+                        r.save()
+
+            msg = EmailMessage(
+                "Solicitação de Reserva",
+                fr"""<h1>Nova Solicitação de Reserva</h1>
+                                            <p><strong>{nome} esta solicitando reserva da(o) {sala} pro dia <strong>{data}</strong> horário: <strong>{hora}</strong></p>
+                                            <p>Para aprovar ou não clique <a href='10.110.209.15/aprovarSala'>aqui</a></p>""",
+                None,
+                ['xandy.modest14@gmail.com'])
+            msg.content_subtype = "html"
+            msg.send()
+            messages.success(request,'Reserva encaminhada para Aprovação')
+            return redirect('index')
+        print(salaForm.errors.as_data())
+    return render(request,'reserva/sala.html',{'salaForm':salaForm,'sala':sala,'data':data})
 
 
 def login(request):
@@ -168,7 +185,9 @@ def login(request):
 def aprovar_carro(request):
     if not request.user.username.endswith('a'):
         return redirect('login')
-    retorna_soli = Carro.objects.filter(aprovado=None)
+    retorna_soli_none = Carro.objects.filter(aprovado=None,data__gte=datetime.today())
+    retorna_soli_true = Carro.objects.filter(aprovado=True,data__gte=datetime.today())
+    retorna_soli=retorna_soli_none | retorna_soli_true
 
     if request.method =="POST":
         check = request.POST.get('botao')
@@ -183,22 +202,35 @@ def aprovar_carro(request):
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Solicitação de Reserva foi Aprovada</h1>
-                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> até <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> horário: <strong>{str(valores[3])[:5]}</strong> até <strong>{str(valores[3])[:5]}</strong> foi <strong>Aprovada</strong></p>""",
+                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[8:10]}/{str(valores[1])[5:7]}/{str(valores[1])[:4]}</strong> horário: <strong>{valores[2]}</strong> foi <strong>Aprovada</strong></p>""",
                 None,
-                [valores[5]])
+                [valores[3]])
             msg.content_subtype="html"
             msg.send()
             messages.success(request, 'Aprovado')
+        elif check == 'cancelar':
+            Carro.objects.filter(id=id).update(aprovado=False)
+            parecer=request.POST.get('reproCancelado')
+            msg = EmailMessage(
+                "Solicitação de Reserva",
+                fr"""<h1>Solicitação de Reserva foi Cancelada</h1>
+                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[8:10]}/{str(valores[1])[5:7]}/{str(valores[1])[:4]}</strong> horário: <strong>{valores[2]}</strong> foi <strong>Cancelada</strong></p>
+                <p><strong>Motivo</strong>: {parecer}</p>""",
+                None,
+                [valores[3]])
+            msg.content_subtype = "html"
+            msg.send()
+            messages.success(request, 'Cancelado')
         else:
             Carro.objects.filter(id=id).update(aprovado=False)
             parecer=request.POST.get('repro')
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Solicitação de Reserva foi Reprovada</h1>
-                            <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> até <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> horário: <strong>{str(valores[3])[:5]}</strong> até <strong>{str(valores[3])[:5]}</strong> foi <strong>Reprovada</strong></p>
-                            <p><strong>Motivo</strong>: {parecer}""",
+                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[8:10]}/{str(valores[1])[5:7]}/{str(valores[1])[:4]}</strong> horário: <strong>{valores[2]}</strong> foi <strong>reprovada</strong></p>
+                <p><strong>Motivo</strong>: {parecer}</p>""",
                 None,
-                [valores[5]])
+                [valores[3]])
             msg.content_subtype = "html"
             msg.send()
             messages.success(request, 'Reprovado')
@@ -211,51 +243,59 @@ def aprovar_sala(request):
     mayara='Mayara Alvarenga'
     vald='Maria Valdirene'
     maze='Maria José'
-    aprovador=''
     if request.user.username.endswith('valdirenem'):
-        aprovador='Maria Valdirene'
-        retorna_soli = Sala.objects.filter(aprovador=aprovador,aprovado=None)
+        retorna_soli = Sala.objects.filter(aprovador=vald,aprovado=None,data__gte=date.today())
     elif request.user.username.endswith('teixeiram'):
-        aprovador = 'Maria José'
-        retorna_soli = Sala.objects.filter(aprovador=aprovador,aprovado=None)
+        retorna_soli = Sala.objects.filter(aprovador=maze,aprovado=None,data__gte=date.today())
     else:
-        aprovador='Mayara Alvarenga'
-        retorna_soli = Sala.objects.filter(aprovador=aprovador,aprovado=None)
-    salaObjsTrue = Sala.objects.filter(aprovado=True, aprovador=aprovador, dataInit__gte=date.today()).values()
-    salaObjsNone = Sala.objects.filter(aprovado=None, aprovador=aprovador, dataInit__gte=date.today()).values()
-    modelComb = salaObjsNone | salaObjsTrue
-    model = modelComb.order_by('-dataInit')
+        retorna_soli = Sala.objects.filter(aprovador=mayara,aprovado=None,data__gte=date.today())
+
     if request.method =="POST":
         id = request.POST.get('id')
-        obj = Sala.objects.filter(id=id).values('sala', 'dataInit', 'dataEnd', 'horaInit', 'horaEnd',
-                                                 'email_solicitante')
+        check = request.POST.get('botao')
+        obj = Sala.objects.filter(id=id).values('sala', 'data','hora','email_solicitante')
         valores = []
         for campo, valor in obj[0].items():
             valores.append(valor)
-        if request.POST.get('botao') == 'aprovar':
+        if check == 'aprovar':
             Sala.objects.filter(id=id).update(aprovado=True)
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Solicitação de Reserva foi Aprovada</h1>
-                            <p>Sua solicitação de reserva da <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> até <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> horário: <strong>{str(valores[3])[:5]}</strong> até <strong>{str(valores[3])[:5]}</strong> foi <strong>Aprovada</strong></p>""",
+                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[8:10]}/{str(valores[1])[5:7]}/{str(valores[1])[:4]}</strong> horário: <strong>{valores[2]}</strong> foi <strong>Aprovada</strong></p>""",
                 None,
-                [valores[5]])
+                [valores[3]])
             msg.content_subtype = "html"
             msg.send()
-            messages.success(request,'Aprovado')
+            messages.success(request, 'Aprovado')
+        elif check == 'cancelar':
+            Sala.objects.filter(id=id).update(aprovado=False)
+            parecer = request.POST.get('reproCancelado')
+            msg = EmailMessage(
+                "Solicitação de Reserva",
+                fr"""<h1>Solicitação de Reserva foi Cancelada</h1>
+                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[8:10]}/{str(valores[1])[5:7]}/{str(valores[1])[:4]}</strong> horário: <strong>{valores[2]}</strong> foi <strong>Cancelada</strong></p>
+                <p><strong>Motivo</strong>: {parecer}</p>""",
+                None,
+                [valores[3]])
+            msg.content_subtype = "html"
+            msg.send()
+            messages.success(request, 'Cancelado')
         else:
             Sala.objects.filter(id=id).update(aprovado=False)
+            parecer = request.POST.get('repro')
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Solicitação de Reserva foi Reprovada</h1>
-                            <p>Sua solicitação de reserva da <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> até <strong>{str(valores[1])[9:10]}/{str(valores[1])[6:7]}</strong> horário: <strong>{str(valores[3])[:5]}</strong> até <strong>{str(valores[3])[:5]}</strong> foi <strong>Reprovada</strong></p>""",
+                <p>Sua solicitação de reserva do <strong>{valores[0]}</strong> pro dia <strong>{str(valores[1])[8:10]}/{str(valores[1])[5:7]}/{str(valores[1])[:4]}</strong> horário: <strong>{valores[2]}</strong> foi <strong>reprovada</strong></p>
+                <p><strong>Motivo</strong>: {parecer}</p>""",
                 None,
-                [valores[5]])
+                [valores[3]])
             msg.content_subtype = "html"
             msg.send()
             messages.success(request, 'Reprovado')
         return redirect('aprovarSala')
-    return render(request,'reserva/aprovarSala.html',{'db':retorna_soli,'model':model})
+    return render(request,'reserva/aprovarSala.html',{'db':retorna_soli})
 
 def return_number(mes):
     dict = {'Janeiro': 1, 'Fevereiro': 2, 'Março': 3, 'Abril': 4, 'Maio': 5, 'Junho': 6, 'Julho': 7,
@@ -267,8 +307,11 @@ def reservas(request,item):
     if request.method =='POST':
         result = request.POST.get('result',None)
         result = result.replace('/','-')
-        return redirect('carros',result,item)
-    return render(request,'reserva/reservas.html',{'carro':item})
+        if item[:4] == 'Sala' or item == 'Auditorio':
+            return redirect('salas', result, item)
+        else:
+            return redirect('carros',result,item)
+    return render(request,'reserva/reservas.html',{'item':item})
 
 def reservas_get(request,carro,dat):
     tabela=Carro.objects.filter(data=dat,carro=carro).values()
@@ -283,100 +326,386 @@ def reservas_get(request,carro,dat):
     return JsonResponse(table,safe=False)
 
 def reservas_json(request,item):
-    resultadosFordKa = {0: {
-                        "mes":9,
-                        "dia":[4,5,6],
-                        "datas":["04/10/2023","05/10/2023","06/10/2023"],
-                        "motivo":["motivo 04/10/2023","motivo 05/10/2023","motivo 06/10/2023"],
-                        "autor":["autor1","autor2","autor3"]
-                      },
-                  1: {
-                        "mes":8,
-                        "dia":[16,12],
-                        "datas":["16/09/2023","12/09/2023"],
-                        "motivo":["motivo 16/09/2023","motivo 12/09/2023"],
-                        "autor":["autor1","autor2"]
-                     }
-                  }
-    resultadosOnix = {0: {
-        "mes": 10,
-        "dia": [7, 25, 16],
-        "datas": ["07/11/2023", "25/11/2023", "16/11/2023"],
-        "motivo": ["motivo 07/11/2023", "motivo 25/11/2023", "motivo 16/11/2023"],
-        "autor": ["autor1", "autor2", "autor3"]
-    }
-    }
-    resultadosHB20={}
-    resultadosSala1 = {}
-    resultadosSalaT = {}
-    resultadosSalaConadM = {0: {
-                        "mes":9,
-                        "dia":[4,5,6],
-                        "datas":["04/10/2023","05/10/2023","06/10/2023"],
-                        "motivo":["motivo 04/10/2023","motivo 05/10/2023","motivo 06/10/2023"],
-                        "autor":["autor1","autor2","autor3"]
-                      },
-                  1: {
-                        "mes":8,
-                        "dia":[11,12],
-                        "datas":["11/09/2023","12/09/2023"],
-                        "motivo":["motivo 11/09/2023","motivo 12/09/2023"],
-                        "autor":["autor1","autor2"]
-                     }
-                  }
-    resultadosSalaConadm = {}
-    resultadosAuditorio = {0: {
-                        "mes":9,
-                        "dia":[4,5,6],
-                        "datas":["04/10/2023","05/10/2023","06/10/2023"],
-                        "motivo":["motivo 04/10/2023","motivo 05/10/2023","motivo 06/10/2023"],
-                        "autor":["autor1","autor2","autor3"]
-                      },
-                  1: {
-                        "mes":8,
-                        "dia":[11,12],
-                        "datas":["11/09/2023","12/09/2023"],
-                        "motivo":["motivo 11/09/2023","motivo 12/09/2023"],
-                        "autor":["autor1","autor2"]
-                     }
-                  }
+    consultaSala = Sala.objects.filter(data__gte=datetime.today())
+    consultaCarro = Carro.objects.filter(data__gte=datetime.today())
+
+    #Ford Ka
+
     if item == 'FordKa':
+        indice = 0
+        fordka=consultaCarro.filter(carro='FordKa')
+        resultadosFordKa = {}
+        mes_anterior=''
+
+        for i in range(0,len(fordka.dates('data','month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux=fordka.order_by('data').values()
+            while True:
+                aux_date=aux[indice]['data']
+                mes=datetime.strptime(str(aux_date),'%Y-%m-%d').date().month
+
+                if not mes == mes_anterior :
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior=mes
+                    break
+                else:
+                    indice+=1
+
+            for item in fordka.filter(data__month=mes):
+                data = datetime.strptime(str(item.data),'%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f= str(data).split('-')
+                data_s=f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados={
+                "mes":mes-1,
+                "dia":dias,
+                "datas":datas,
+                "motivo":motivo,
+                "solicitante":solicitante
+            }
+            resultadosFordKa[i]=dados
+
         return JsonResponse(resultadosFordKa)
+
+    #Onix
+
     elif item == 'Onix':
+        indice = 0
+        onix = consultaCarro.filter(carro='Onix')
+        resultadosOnix = {}
+        mes_anterior = ''
+
+        for i in range(0, len(onix.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = onix.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in onix.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosOnix[i] = dados
+
         return JsonResponse(resultadosOnix)
+
+    #HB20
+
     elif item == 'HB20':
+        indice = 0
+        HB20 = consultaCarro.filter(carro='HB20')
+        resultadosHB20 = {}
+        mes_anterior = ''
+
+        for i in range(0, len(HB20.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = HB20.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in HB20.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosHB20[i] = dados
+
         return JsonResponse(resultadosHB20)
+
+    #Sala andar 1
+
     elif item == 'Sala andar 1':
+        indice = 0
+        sala1 = consultaSala.filter(sala='Sala andar 1')
+        resultadosSala1 = {}
+        mes_anterior = ''
+
+        for i in range(0, len(sala1.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = sala1.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in sala1.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosSala1[i] = dados
+
         return JsonResponse(resultadosSala1)
+
+    #Sala Terreo
+
     elif item == 'Sala Terreo':
+        indice = 0
+        salaT = consultaSala.filter(sala='Sala Terreo')
+        resultadosSalaT = {}
+        mes_anterior = ''
+
+        for i in range(0, len(salaT.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = salaT.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in salaT.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosSalaT[i] = dados
+
         return JsonResponse(resultadosSalaT)
-    elif item == 'Sala Maior Conad':
+
+    #Sala Conad Maior
+
+    elif item == 'Sala Conad Maior':
+        indice = 0
+        salaConadM = consultaSala.filter(sala='Sala Conad Maior')
+        resultadosSalaConadM = {}
+        mes_anterior = ''
+
+        for i in range(0, len(salaConadM.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = salaConadM.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in salaConadM.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosSalaConadM[i] = dados
+
         return JsonResponse(resultadosSalaConadM)
-    elif item == 'Sala Menor Conad':
+
+    #Sala Conad Menor
+
+    elif item == 'Sala Conad Menor':
+        indice = 0
+        salaConadm = consultaSala.filter(sala='Sala Conad Menor')
+        resultadosSalaConadm = {}
+        mes_anterior = ''
+
+        for i in range(0, len(salaConadm.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = salaConadm.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in salaConadm.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosSalaConadm[i] = dados
+
         return JsonResponse(resultadosSalaConadm)
-    else:return JsonResponse(resultadosAuditorio)
+
+    #Auditorio
+
+    else:
+        indice = 0
+        salaAuditorio = consultaSala.filter(sala='Auditorio')
+        resultadosSalaAuditorio = {}
+        mes_anterior = ''
+
+        for i in range(0, len(salaAuditorio.dates('data', 'month'))):
+            dias = []
+            datas = []
+            motivo = []
+            solicitante = []
+            aux = salaAuditorio.order_by('data').values()
+            while True:
+                aux_date = aux[indice]['data']
+                mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
+
+                if not mes == mes_anterior:
+                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
+                    mes_anterior = mes
+                    break
+                else:
+                    indice += 1
+
+            for item in salaAuditorio.filter(data__month=mes):
+                data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+                dias.append(data.day)
+                data_f = str(data).split('-')
+                data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
+                datas.append(data_s)
+
+                motivo.append(item.motivo)
+                solicitante.append(item.solicitante)
+
+            dados = {
+                "mes": mes - 1,
+                "dia": dias,
+                "datas": datas,
+                "motivo": motivo,
+                "solicitante": solicitante
+            }
+            resultadosSalaAuditorio[i] = dados
+
+        return JsonResponse(resultadosSalaAuditorio)
 
 def reserva_mes(request,db):
     if not db == 'Sala':
-        retorno = Carro.objects.filter(data__month__gte=datetime.today().month)
-        return render(request, 'reserva/reservasCarro.html', {'model': retorno})
+        retorno = Carro.objects.filter(created_at__month__gte=date.today().month)
+        retorno_todos = Carro.objects.filter(created_at__month__lte=date.today().month)
+        retorno_todos =retorno_todos.filter(created_at__month__gte=date.today().month-2)
+        return render(request, 'reserva/reservasCarro.html', {'model': retorno,'model_todos':retorno_todos})
     else:
-        retorno = Sala.objects.filter(data__month__gte=datetime.now().month)
-        return render(request, 'reserva/reservasSala.html', {'model': retorno})
+        retorno = Sala.objects.filter(created_at__month__gte=date.now().month)
+        retorno_todos = Sala.objects.filter(created_at__month__lte=date.today().month)
+        retorno_todos = retorno_todos.filter(created_at__month__gte=date.today().month - 2)
+        return render(request, 'reserva/reservasSala.html', {'model': retorno,'model_todos':retorno_todos})
 
-def checador_de_datas(db,obj,dataInit,dataEnd,horaInit):
-    if not db == 'Sala':
-        try:
-            busca = Carro.objects.filter(carro=obj,dataInit=dataInit,dataEnd=dataEnd,horaInit__gte=horaInit).filter(horaEnd__lte=horaInit)
-        except:
-            print('nao tem')
-        else:
-            print(busca[0][0])
-    else:
-        busca = Sala.objects.filter(sala=obj,dataInit=dataInit,dataEnd=dataEnd,horaInit__lte=horaInit).filter(horaEnd__gte=horaInit).values()
-        try:
-            busca[0]
-        except:
-            print('erro')
-        else:
-            print(busca[0])

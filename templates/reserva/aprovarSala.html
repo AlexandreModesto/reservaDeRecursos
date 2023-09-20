@@ -4,62 +4,57 @@
 <div style="text-align:center;">
     <h1>Pedidos de reserva</h1>
 </div>
+<div class="d-grid gap-2 d-md-flex justify-content-md-end" style="text-align: right;">
+    <button type="button" class="btn btn-success" style="width:200px" onclick="location.href='http://10.110.209.15/admin'">Reservas Totais</button>
+</div>
 {% if db %}
 <div class="row">
-{% for item in db%}
+{% for item in db %}
+    {% if item.aprovado == None %}
     <div class="col-sm-4">
-        <div class="card w-100" style="margin-top:10%;">
+        <div class="card w-100 cartao" style="margin-bottom:10%;">
             <div class="card-body">
                 <h5 class="card-title">Pedido N°#{{item.id}}</h5>
                 <form action="" method="post">
-                {% csrf_token o%}
-                    <p class="card-text">Sala: {{item.sala}}</p>
+                {% csrf_token %}
+                    <p class="card-text" >Carro: {{item.sala}}</p>
                     <p class="card-text">Solicitante: {{item.solicitante}}</p>
-                    <p class="card-text">Dás: {{item.horaInit}} Até {{item.horaEnd}}</p>
-                    <input type="text" class="card-text" style="display:none" value="{{item.id}}" name="id">
+                    <p class="card-text">Dia: {{item.data}}</p>
+                    <p class="card-text">Dás: {{item.hora}}</p>
+                    <input type="text" style="display:none" value="{{item.id}}" name="id">
                     <button type="submit" class="btn btn-success" value="aprovar" name="botao">Aprovar</button>
-                    <button type="submit" class="btn btn-danger" value="reprovar" name="botao">Reprovar</button>
+                    <button class="btn btn-danger" value="reprovar" name="botao" id="botaor">Reprovar</button><br>
+                    <input type="text" style="display:none;margin-top:5px;" name="repro" id="repro" placeholder="Digite o parecer:">
+                    <input type="submit" style="display:none" class=" btn btn-success" id="submit" value="Enviar">
                 </form>
             </div>
         </div>
     </div>
+    {% else %}
+    <div style="text-align:center;">
+        <h1>Aprovados</h1>
+    </div>
+        <div class="col-sm-4">
+        <div class="card w-100 cartao" style="margin-bottom:10%;">
+            <div class="card-body">
+                <h5 class="card-title">Pedido N°#{{item.id}}</h5>
+                <form action="" method="post">
+                {% csrf_token %}
+                    <p class="card-text" >Carro: {{item.sala}}</p>
+                    <p class="card-text">Solicitante: {{item.solicitante}}</p>
+                    <p class="card-text">Dia: {{item.data}}</p>
+                    <p class="card-text">Dás: {{item.hora}}</p>
+                    <input type="text" style="display:none" value="{{item.id}}" name="id">
+                    <button type="submit" class="btn btn-danger" value="cancelar" name="botao">Cancelar</button>
+                    <input type="text" style="display:none;margin-top:5px;" name="repro" id="reproCancelado" placeholder="Digite o parecer:">
+                    <input type="submit" style="display:none" class=" btn btn-success" id="submitCancelado" value="Enviar">
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 {% endfor %}
 </div>
-<div class="row justify-content-md-left">
-        <table class="table">
-            <thead>
-            <tr>
-                <th scope="col">Sala</th>
-                <th scope="col">Data Início</th>
-                <th scope="col">Data Final</th>
-                <th scope="col">Hora Início</th>
-                <th scope="col">Hora Final</th>
-                <th scope="col">Solicitante</th>
-            </tr>
-            </thead>
-            {% for item in model %}
-            {% if item.aprovado == True %}
-                <tbody>
-                <th scope="row">{{item.sala}}</th>
-                <td>{{item.dataInit}}</td>
-                <td>{{item.dataEnd}}</td>
-                <td>{{item.horaInit}}</td>
-                <td>{{item.horaEnd}}</td>
-                <td>{{item.solicitante}}</td>
-                </tbody>
-            {% else %}
-                <tbody>
-                <th scope="row" style="background:yellow;">{{item.sala}}</th>
-                <td style="background:yellow;">{{item.dataInit}}</td>
-                <td style="background:yellow;">{{item.dataEnd}}</td>
-                <td style="background:yellow;">{{item.horaInit}}</td>
-                <td style="background:yellow;">{{item.horaEnd}}</td>
-                <td style="background:yellow;">{{item.solicitante}}</td>
-                </tbody>
-            {% endif %}
-            {% endfor %}
-        </table>
-    </div>
 {% else %}
 <div style="text-align:center;">
     <h3>Sem pedidos por enquanto</h3>
