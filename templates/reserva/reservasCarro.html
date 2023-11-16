@@ -15,6 +15,7 @@
                     <th scope="col">Hora</th>
                     <th scope="col">Motivo</th>
                     <th scope="col">Solicitante</th>
+                    <th scope="col">Email Solicitante</th>
                     <th scope="col">Solicitado em</th>
                     <th scope="col">Situação</th>
             </tr>
@@ -26,6 +27,7 @@
                 <td>{{item.hora}}</td>
                 <td>{{item.motivo}}</td>
                 <td>{{item.solicitante}}</td>
+                <td>{{item.email_solicitante}}</td>
                 <td>{{item.created_at}}</td>
                 {% if item.aprovado == True %}
                 <td><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">
@@ -59,6 +61,7 @@
                     <th scope="col">Hora</th>
                     <th scope="col">Motivo</th>
                     <th scope="col">Solicitante</th>
+                    <th scope="col">Email Solicitante</th>
                     <th scope="col">Solicitado em</th>
                     <th scope="col">Situação</th>
             </tr>
@@ -70,6 +73,7 @@
                 <td>{{item.hora}}</td>
                 <td>{{item.motivo}}</td>
                 <td>{{item.solicitante}}</td>
+                <td>{{item.email_solicitante}}</td>
                 <td>{{item.created_at}}</td>
                 {% if item.aprovado == True %}
                 <td><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="40" height="40" viewBox="0 0 48 48">

@@ -3,7 +3,7 @@ import django.contrib.auth
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth import authenticate
-
+import ping3
 
 from .models import Carro,Sala
 from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm
@@ -17,41 +17,50 @@ def index(request):
     sala_list=['Sala Terreo','Sala andar 1','Sala Maior Conad','Sala Menor Conad','Auditório']
     return render(request,'reserva/index.html',{'carro_list':carro_list,'sala_list':sala_list})
 
+def conversor_de_hora(hora):
+    if not len(hora) > 1:
+        print(hora)
+        return hora[0]
+    else:
+        hora_convetida=f'{hora[0][:5]}-{hora[-1][-5:]}'
+        return hora_convetida
+
+
 def carro(request,result,carro):
+    if not carro == "FordKa" and not carro == "Onix" and not carro == "HB20":
+        return redirect('reservas',carro)
     carroForm = ReservaCarro()
     result = result.split('-')
-    print(carro)
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
     if request.method == 'POST':
         carroForm = ReservaCarro(request.POST)
         if carroForm.is_valid():
             nome=carroForm.cleaned_data['nome']
+            nome=nome.replace(' ','-')
             email=carroForm.cleaned_data['email']
             hora=carroForm.cleaned_data['horas']
             rep=carroForm.cleaned_data['repetir']
-
+            motivo=carroForm.cleaned_data['motivo']
+            motivo = motivo.replace(' ', '-')
 
             data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
             if not rep:
-                print(data_f)
-                r=Carro(carro=carro,solicitante=nome,email_solicitante=email,data=data_f,hora=hora)
-                # r.save()
+                r=Carro(carro=carro,motivo=motivo,solicitante=nome,email_solicitante=email,data=data_f,hora=conversor_de_hora(hora))
+                r.save()
             else:
                 nuRepetir = request.POST.get('nuRepetir', None)  # numero
                 tpRepetir = request.POST.get('tpRepetir', None)  # D/S
                 ate = request.POST.get('ate', None)
                 ate_l=str(ate).split('/')
                 ate_s = f'{ate_l[2]}-{ate_l[1]}-{ate_l[0]}'
-                print()
                 ate_f = datetime.strptime(ate_s, '%Y-%m-%d').date()
 
                 prox_data = data_f
                 if tpRepetir == 'D':
 
-                    print(prox_data)
-                    r = Carro(carro=carro, solicitante=nome, email_solicitante=email,
-                              data=str(prox_data), hora=hora)
+                    r = Carro(carro=carro,motivo=motivo, solicitante=nome, email_solicitante=email,
+                              data=str(prox_data), hora=conversor_de_hora(hora))
                     r.save()
 
                     if ate_f.month > data_f.month:
@@ -62,32 +71,33 @@ def carro(request,result,carro):
                         prox_data=prox_data + timedelta(days=int(nuRepetir))
                         if prox_data > ate_f:
                             break
-                        print(prox_data)
-                        r = Carro(carro=carro, solicitante=nome, email_solicitante=email,
-                                  data=str(prox_data), hora=hora)
-                        r.save()
+                        if prox_data.weekday() < 5:
+                            r = Carro(carro=carro,motivo=motivo, solicitante=nome, email_solicitante=email,
+                                      data=str(prox_data), hora=conversor_de_hora(hora))
+                            r.save()
+                        else:pass
                 else:
-                    print(prox_data)
-                    r = Carro(carro=carro, solicitante=nome, email_solicitante=email,
-                              data=str(prox_data), hora=hora)
+                    r = Carro(carro=carro,motivo=motivo, solicitante=nome, email_solicitante=email,
+                              data=str(prox_data), hora=conversor_de_hora(hora))
                     r.save()
                     finalRange = ate_f - data_f
                     for i in range(7, finalRange.days+1,7):
                         prox_data = prox_data + timedelta(weeks=int(nuRepetir))
                         if prox_data > ate_f:
                             break
-                        print(prox_data)
-                        r = Carro(carro=carro, solicitante=nome, email_solicitante=email,
-                                  data=str(prox_data), hora=hora)
-                        r.save()
+                        if prox_data.weekday() < 5:
+                            r = Carro(carro=carro,motivo=motivo, solicitante=nome, email_solicitante=email,
+                                      data=str(prox_data), hora=conversor_de_hora(hora))
+                            r.save()
+                        else:pass
 
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Nova Solicitação de Reserva</h1>
-                                            <p><strong>{nome} esta solicitando reserva do {carro} pro dia <strong>{data}</strong> horário: <strong>{hora}</strong></p>
-                                            <p>Para aprovar ou não clique <a href='10.110.209.15/aprovarSala'>aqui</a></p>""",
+                                            <p><strong>{nome.replace('-',' ')} esta solicitando reserva do {carro} pro dia <strong>{data}</strong> horário: <strong>{conversor_de_hora(hora)}</strong></p>
+                                            <p>Para aprovar ou não clique <a href='10.110.209.15:90/aprovarSala'>aqui</a></p>""",
                 None,
-                ['xandy.modest14@gmail.com'])
+                ['antoniorezende@sicoob.com.br'])
             msg.content_subtype = "html"
             msg.send()
             messages.success(request,'Reserva encaminhada para Aprovação')
@@ -96,24 +106,38 @@ def carro(request,result,carro):
     return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data})
 
 def sala(request,result,sala):
+    if sala == "FordKa" and sala == "Onix" and sala == "HB20":
+        return redirect('reservas',sala)
     salaForm = ReservaSala()
     result = result.split('-')
-    print(sala)
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
     if request.method == 'POST':
         salaForm = ReservaSala(request.POST)
         if salaForm.is_valid():
             nome=salaForm.cleaned_data['nome']
+            nome=nome.replace(' ','-')
             email=salaForm.cleaned_data['email']
-            hora=salaForm.cleaned_data['horas']
+            if sala == 'Auditorio':
+                hora=salaForm.cleaned_data['auditorio']
+            else:
+                hora = salaForm.cleaned_data['horas']
             rep=salaForm.cleaned_data['repetir']
-
+            motivo=salaForm.cleaned_data['motivo']
+            motivo = motivo.replace(' ', '-')
+            if sala=='Sala Menor Conad' or sala=='Sala Maior Conad':
+                apro='Maria Valdirene'
+                mail='valdirene.monteiro@sicoob.com.br'
+            elif sala == 'Auditorio':
+                apro='Maria José'
+                mail='maze.teixeira@sicoob.com.br'
+            else:
+                apro = 'Mayara Alvarenga'
+                mail = 'mayara.alvarenga@sicoob.com.br'
 
             data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
             if not rep:
-                print(data_f)
-                r=Sala(sala=sala,solicitante=nome,email_solicitante=email,data=data_f,hora=hora)
+                r=Sala(sala=sala,motivo=motivo,aprovador=apro,solicitante=nome,email_solicitante=email,data=data_f,hora=conversor_de_hora(hora))
                 r.save()
             else:
                 nuRepetir = request.POST.get('nuRepetir', None)  # numero
@@ -121,14 +145,12 @@ def sala(request,result,sala):
                 ate = request.POST.get('ate', None)
                 ate_l = str(ate).split('/')
                 ate_s = f'{ate_l[2]}-{ate_l[1]}-{ate_l[0]}'
-                print()
                 ate_f = datetime.strptime(ate_s, '%Y-%m-%d').date()
 
                 prox_data = data_f
                 if tpRepetir == 'D':
-                    print(prox_data)
-                    r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
-                              data=str(prox_data), hora=hora)
+                    r = Sala(sala=sala,motivo=motivo,aprovador=apro, solicitante=nome, email_solicitante=email,
+                              data=str(prox_data), hora=conversor_de_hora(hora))
                     r.save()
 
                     if ate_f.month > data_f.month:
@@ -139,32 +161,33 @@ def sala(request,result,sala):
                         prox_data=prox_data + timedelta(days=int(nuRepetir))
                         if prox_data > ate_f:
                             break
-                        print(prox_data)
-                        r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
-                                  data=str(prox_data), hora=hora)
-                        r.save()
+                        if prox_data.weekday() < 5:
+                            r = Sala(sala=sala,motivo=motivo,aprovador=apro, solicitante=nome, email_solicitante=email,
+                                      data=str(prox_data), hora=conversor_de_hora(hora))
+                            r.save()
+                        else:pass
                 else:
-                    print(prox_data)
-                    r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
-                              data=str(prox_data), hora=hora)
+                    r = Sala(sala=sala,motivo=motivo,aprovador=apro, solicitante=nome, email_solicitante=email,
+                              data=str(prox_data), hora=conversor_de_hora(hora))
                     r.save()
                     finalRange = ate_f - data_f
                     for i in range(7, finalRange.days+1,7):
                         prox_data = prox_data + timedelta(weeks=int(nuRepetir))
                         if prox_data > ate_f:
                             break
-                        print(prox_data)
-                        r = Sala(sala=sala, solicitante=nome, email_solicitante=email,
-                                  data=str(prox_data), hora=hora)
-                        r.save()
+                        if prox_data.weekday() < 5:
+                            r = Sala(sala=sala,motivo=motivo,aprovador=apro, solicitante=nome, email_solicitante=email,
+                                      data=str(prox_data), hora=conversor_de_hora(hora))
+                            r.save()
+                        else:pass
 
             msg = EmailMessage(
                 "Solicitação de Reserva",
                 fr"""<h1>Nova Solicitação de Reserva</h1>
-                                            <p><strong>{nome} esta solicitando reserva da(o) {sala} pro dia <strong>{data}</strong> horário: <strong>{hora}</strong></p>
-                                            <p>Para aprovar ou não clique <a href='10.110.209.15/aprovarSala'>aqui</a></p>""",
+                                            <p><strong>{nome.replace('-',' ')} esta solicitando reserva da(o) {sala} pro dia <strong>{data}</strong> horário: <strong>{conversor_de_hora(hora)}</strong></p>
+                                            <p>Para aprovar ou não clique <a href='10.110.209.15:90/aprovarSala'>aqui</a></p>""",
                 None,
-                ['xandy.modest14@gmail.com'])
+                [mail])
             msg.content_subtype = "html"
             msg.send()
             messages.success(request,'Reserva encaminhada para Aprovação')
@@ -202,7 +225,6 @@ def aprovar_carro(request):
         return redirect('login')
     retorna_soli_none = Carro.objects.filter(aprovado=None,data__gte=datetime.today())
     retorna_soli_true = Carro.objects.filter(aprovado=True,data__gte=datetime.today())
-    retorna_soli=retorna_soli_none | retorna_soli_true
 
     if request.method =="POST":
         check = request.POST.get('botao')
@@ -250,7 +272,7 @@ def aprovar_carro(request):
             msg.send()
             messages.success(request, 'Reprovado')
         return redirect('aprovarCarro')
-    return render(request,'reserva/aprovarCarro.html',{'db':retorna_soli})
+    return render(request,'reserva/aprovarCarro.html',{'db_none':retorna_soli_none,'db_true':retorna_soli_true})
 
 def aprovar_sala(request):
     if not request.user.username.endswith('m'):
@@ -259,11 +281,14 @@ def aprovar_sala(request):
     vald='Maria Valdirene'
     maze='Maria José'
     if request.user.username.endswith('valdirenem'):
-        retorna_soli = Sala.objects.filter(aprovador=vald,aprovado=None,data__gte=date.today())
+        retorna_soli_none = Sala.objects.filter(aprovador=vald,aprovado=None,data__gte=datetime.today())
+        retorna_soli_true = Sala.objects.filter(aprovador=vald,aprovado=True, data__gte=datetime.today())
     elif request.user.username.endswith('teixeiram'):
-        retorna_soli = Sala.objects.filter(aprovador=maze,aprovado=None,data__gte=date.today())
+        retorna_soli_none = Sala.objects.filter(aprovador=maze, aprovado=None, data__gte=datetime.today())
+        retorna_soli_true = Sala.objects.filter(aprovador=maze, aprovado=True, data__gte=datetime.today())
     else:
-        retorna_soli = Sala.objects.filter(aprovador=mayara,aprovado=None,data__gte=date.today())
+        retorna_soli_none = Sala.objects.filter(aprovador=mayara, aprovado=None, data__gte=datetime.today())
+        retorna_soli_true = Sala.objects.filter(aprovador=mayara, aprovado=True, data__gte=datetime.today())
 
     if request.method =="POST":
         id = request.POST.get('id')
@@ -310,7 +335,7 @@ def aprovar_sala(request):
             msg.send()
             messages.success(request, 'Reprovado')
         return redirect('aprovarSala')
-    return render(request,'reserva/aprovarSala.html',{'db':retorna_soli})
+    return render(request,'reserva/aprovarSala.html',{'db_none':retorna_soli_none,'db_true':retorna_soli_true})
 
 def return_number(mes):
     dict = {'Janeiro': 1, 'Fevereiro': 2, 'Março': 3, 'Abril': 4, 'Maio': 5, 'Junho': 6, 'Julho': 7,
@@ -329,26 +354,33 @@ def reservas(request,item):
     return render(request,'reserva/reservas.html',{'item':item})
 
 def reservas_get(request,carro,dat):
-    tabela=Carro.objects.filter(data=dat,carro=carro).values()
-    table = {'solicitante':'', 'motivo':'', 'hora':''}
+    try:
+        tabela=Carro.objects.filter(data=dat,carro=carro).values()
+        print(tabela[0])
+    except:
+        tabela = Sala.objects.filter(data=dat, sala=carro).values()
+    table = {'solicitante': '', 'motivo': '', 'hora': '', 'aprovado': ''}
     for item in tabela:
-        table['solicitante']+=' '+item['solicitante']
-        table['motivo'] += ' '+str(item['motivo'])
-        table['hora'] += ' '+item['hora']
+        table['solicitante'] += ' ' + item['solicitante']
+        table['motivo'] += ' ' + str(item['motivo'])
+        table['hora'] += ' ' + item['hora']
+        table['aprovado'] += ' ' + str(item['aprovado'])
     table['solicitante'] = table['solicitante'].split()
     table['motivo'] = table['motivo'].split()
     table['hora'] = table['hora'].split()
+    table['aprovado'] = table['aprovado'].split()
     return JsonResponse(table,safe=False)
 
+
 def reservas_json(request,item):
-    consultaSala = Sala.objects.filter(data__gte=datetime.today())
-    consultaCarro = Carro.objects.filter(data__gte=datetime.today())
+    consultaSala = Sala.objects.filter(data__gte=datetime.today(),aprovado=True)
+    consultaCarro = Carro.objects.filter(data__gte=datetime.today(),aprovado=True)
 
     #Ford Ka
 
     if item == 'FordKa':
         indice = 0
-        fordka=consultaCarro.filter(carro='FordKa')
+        fordka=consultaCarro.filter(carro=item)
         resultadosFordKa = {}
         mes_anterior=''
 
@@ -363,7 +395,6 @@ def reservas_json(request,item):
                 mes=datetime.strptime(str(aux_date),'%Y-%m-%d').date().month
 
                 if not mes == mes_anterior :
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior=mes
                     break
                 else:
@@ -394,7 +425,7 @@ def reservas_json(request,item):
 
     elif item == 'Onix':
         indice = 0
-        onix = consultaCarro.filter(carro='Onix')
+        onix = consultaCarro.filter(carro=item)
         resultadosOnix = {}
         mes_anterior = ''
 
@@ -409,7 +440,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -440,7 +470,7 @@ def reservas_json(request,item):
 
     elif item == 'HB20':
         indice = 0
-        HB20 = consultaCarro.filter(carro='HB20')
+        HB20 = consultaCarro.filter(carro=item)
         resultadosHB20 = {}
         mes_anterior = ''
 
@@ -455,7 +485,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -486,7 +515,7 @@ def reservas_json(request,item):
 
     elif item == 'Sala andar 1':
         indice = 0
-        sala1 = consultaSala.filter(sala='Sala andar 1')
+        sala1 = consultaSala.filter(sala=item)
         resultadosSala1 = {}
         mes_anterior = ''
 
@@ -501,7 +530,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -532,7 +560,7 @@ def reservas_json(request,item):
 
     elif item == 'Sala Terreo':
         indice = 0
-        salaT = consultaSala.filter(sala='Sala Terreo')
+        salaT = consultaSala.filter(sala=item)
         resultadosSalaT = {}
         mes_anterior = ''
 
@@ -547,7 +575,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -578,7 +605,7 @@ def reservas_json(request,item):
 
     elif item == 'Sala Conad Maior':
         indice = 0
-        salaConadM = consultaSala.filter(sala='Sala Conad Maior')
+        salaConadM = consultaSala.filter(sala=item)
         resultadosSalaConadM = {}
         mes_anterior = ''
 
@@ -593,7 +620,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -624,7 +650,7 @@ def reservas_json(request,item):
 
     elif item == 'Sala Conad Menor':
         indice = 0
-        salaConadm = consultaSala.filter(sala='Sala Conad Menor')
+        salaConadm = consultaSala.filter(sala=item)
         resultadosSalaConadm = {}
         mes_anterior = ''
 
@@ -639,7 +665,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -670,7 +695,7 @@ def reservas_json(request,item):
 
     else:
         indice = 0
-        salaAuditorio = consultaSala.filter(sala='Auditorio')
+        salaAuditorio = consultaSala.filter(sala=item)
         resultadosSalaAuditorio = {}
         mes_anterior = ''
 
@@ -685,7 +710,6 @@ def reservas_json(request,item):
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
 
                 if not mes == mes_anterior:
-                    print(datetime.strptime(str(aux_date), '%Y-%m-%d').date(), mes)
                     mes_anterior = mes
                     break
                 else:
@@ -719,8 +743,40 @@ def reserva_mes(request,db):
         retorno_todos =retorno_todos.filter(created_at__month__gte=date.today().month-2)
         return render(request, 'reserva/reservasCarro.html', {'model': retorno,'model_todos':retorno_todos})
     else:
-        retorno = Sala.objects.filter(created_at__month__gte=date.now().month)
+        retorno = Sala.objects.filter(created_at__month__gte=date.today().month)
         retorno_todos = Sala.objects.filter(created_at__month__lte=date.today().month)
         retorno_todos = retorno_todos.filter(created_at__month__gte=date.today().month - 2)
         return render(request, 'reserva/reservasSala.html', {'model': retorno,'model_todos':retorno_todos})
 
+def manutencao(request):
+    return render(request,'reserva/manutencao.html')
+
+def pings(request):
+    return render(request,'reserva/pinging.html')
+
+def json_ping(request):
+    ping3.EXCEPTIONS=True
+    json_ip={'local':['Firewall Sede','Pindamonhangaba','Botucatu','Araraquara','Guaratingueta','Campinas','Sisbr','Site Cooperemb','#COOP','Centro','Portal Cooperemb'],'ping':[],'status':[],'ip':[]}
+    lista_ip=['189.127.6.65', '10.111.210.1', '10.112.211.1','10.113.212.1','10.114.213.1','10.116.215.1','172.16.2.188','172.67.135.223','13.107.213.33','10.115.214.1','www.cooperemb.com']
+    for ip in lista_ip:
+        try:
+            ping = ping3.ping(ip)
+        except:
+            json_ip['ping'].append('Tempo excedido')
+            json_ip['status'].append('alto')
+            json_ip['ip'].append(ip)
+        else:
+            ping_string = str(ping)[2:6]
+            if int(ping_string) < 70:
+                json_ip['ping'].append(f'{int(ping_string)}ms')
+                json_ip['status'].append('baixo')
+                json_ip['ip'].append(ip)
+            elif int(ping_string)  < 600 > 70:
+                json_ip['ping'].append(f'{int(ping_string)}ms')
+                json_ip['status'].append('medio')
+                json_ip['ip'].append(ip)
+            else:
+                json_ip['ping'].append(f'{int(ping_string)}ms')
+                json_ip['status'].append('alto')
+                json_ip['ip'].append(ip)
+    return JsonResponse(json_ip)

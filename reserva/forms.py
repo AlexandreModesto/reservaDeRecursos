@@ -13,7 +13,7 @@ class ReservaCarro(forms.Form):
     horas_choice=(('07:50-08:50','07:50 - 08:50'),('08:51-09:50','08:51 - 09:50'),('09:51-10:50','09:51 - 10:50'),
            ('10:51-11:50','10:51 - 11:50'),('11:51-12:50','11:51 - 12:50'),('12:51-13:50','12:51 - 13:50'),
            ('13:51-14:50','13:51 - 14:50'),('14:51-15:50','14:51 - 15:50'),('15:51-17:15','15:51 - 17:15'))
-    horas=forms.ChoiceField(choices=horas_choice,label='Horário :',widget=forms.RadioSelect())
+    horas=forms.MultipleChoiceField(choices=horas_choice,label='Horário :',widget=forms.CheckboxSelectMultiple)
     repetir=forms.BooleanField(required=False,label='Repetir',)
 
 
@@ -32,14 +32,12 @@ class ReservaSala(forms.Form):
              ('13:01-13:30', '13:01 - 13:30'), ('13:31-14:00', '13:31 - 14:00'), ('14:01-14:30', '14:01 - 14:30'),
              ('14:31-15:00', '14:31 - 15:00'), ('15:01-15:30', '15:01 - 15:30'), ('15:31-16:00', '15:31 - 16:00'),
              ('16:01-16:30', '16:01 - 16:30'), ('16:31-17:15', '16:31 - 17:15'))
-    horas = forms.ChoiceField(choices=horas_choice, label='Horário :', widget=forms.RadioSelect(),required=False)
+    horas = forms.MultipleChoiceField(choices=horas_choice, label='Horário :', widget=forms.CheckboxSelectMultiple,required=False)
     auditorio_choice = (('08:00-12:00', '08:00 - 12:00'), ('12:01-17:00', '12:01 - 17:00'), ('17:01-22:50', '17:01 - 22:50'))
-    auditorio = forms.ChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.RadioSelect(),required=False)
+    auditorio = forms.MultipleChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.CheckboxSelectMultiple,required=False)
     repetir = forms.BooleanField(required=False, label='Repetir', )
 
 
-# def return_options()
-# class ReservaSala2(f)
 class LoginForms(forms.Form):
     usuario=forms.CharField(label='Usuario', max_length=100,widget=forms.TextInput(attrs={'class':'form-control','placeholder':'similar a VPN',}))
     senha=forms.CharField(label='Senha', max_length=100,widget=forms.PasswordInput(attrs={'class':'form-control','placeholder':'senha',}))
@@ -52,8 +50,12 @@ def return_month(date,now=False,one=False,two=False):
     elif not one == False:
         return dict[hoje.month+1]
     else:
-        return dict[hoje.month+2]
+        try:
+            return dict[hoje.month+2]
+        except:
+            dict[hoje.month]=1
+            return dict[hoje.month]
 class ReservasForm(forms.Form):
     date=datetime.datetime.now()
-    meses=((return_month(date,now=True),(return_month(date,now=True))),(return_month(date,one=True),return_month(date,one=True)),(return_month(date,two=True),return_month(date,two=True)))
+    meses=((return_month(date,now=True),(return_month(date,now=True))),(return_month(date,one=True),return_month(date,one=True)),(return_month(date=date,two=True),return_month(date=date,two=True)))
     mes=forms.ChoiceField(choices=meses,label='Qual Mês? ')

@@ -7,7 +7,7 @@
 <script src="{% static '/js/bootstrap-datepicker.min.js' %}"></script>
 <script src="{% static '/locales/bootstrap-datepicker.pt-BR.min.js' %}"></script>
 <div class="reservas__picker row justify-content-md">
-    <h1><span class="badge text-bg-light" style="margin-top:10px;">Reservas &rArr; {{carro}}</span></h1>
+    <h1><span class="badge text-bg-light" style="margin-top:10px;">Reservas &rArr; {{item}}</span></h1>
     <h5>Não é o recurso que procura?<br>troque aqui &darr;</h5>
     <input style="display:none" id="item" value="{{item}}">
     <input style="display:none" id="resultados">
@@ -28,7 +28,7 @@
     </div>
     <div class="col-6">
         <h3><span class="badge text-bg-light">Escolha uma data</span></h3>
-        <h5><em>Se ela tiver reservas, aparecerá abaixo</em> &darr; </h5>
+        <h5><em>Se ela tiver reservas <span class="badge text-bg-warning">aprovadas</span>, aparecerá abaixo</em> &darr; </h5>
         <div id="sspan" style="display:none">
         <table class="table table-bordered">
             <thead class="table-dark ">
@@ -56,10 +56,32 @@
 <script>
 async function main(){
  const item = document.getElementById('item');
- const response = await axios.get(`http://127.0.0.1:8000/json/${item.value}`);
+ const response = await axios.get(`http://10.110.209.15:90/json/${item.value}`);
  const data = response.data;
  const items = Object.values(data);
  var date = new Date();
+
+ if("{{item}}" == "Auditorio"){
+    date.setDate(date.getDate());
+    $('#datepicker').datepicker({
+        startDate: date,
+        language: 'pt-BR',
+        beforeShowDay: function(date) {
+             for (var i = 0; i < items.length; i++){
+                mes = items[i]["mes"];
+                dias = items[i]["dia"];
+                if (date.getMonth() == mes){
+                    if (~dias.indexOf(date.getDate())) {
+                        return {classes: 'highlighted', tooltip: 'Title'};
+                    }
+                }
+
+            }
+        }
+
+    });
+ }else{
+
  date.setDate(date.getDate());
     $('#datepicker').datepicker({
         startDate: date,
@@ -78,19 +100,19 @@ async function main(){
             }
         }
 
-    });
+    });}
  }
 main()
 
 async function teste(){
     const item = document.getElementById('item').value;
-    const response = await axios.get(`http://127.0.0.1:8000/json/${item}`);
+    const response = await axios.get(`http://10.110.209.15:90/json/${item}`);
     const data = response.data;
     const items = Object.values(data);
     const teste= document.getElementById('result').value
     const sspan = document.getElementById('sspan');
     for( i = 0;i<=items.length;i++){
-        for(j=0;j<=items.length;j++){
+        for(j=0;j<items[i]["datas"].length;j++){
             if(teste === items[i]["datas"][j]){
                 const varTexto = document.getElementById('spanT');
                 varTexto.innerHTML="";
@@ -99,14 +121,15 @@ async function teste(){
                 var mes=items[i]["datas"][j].substring(3,5);
                 var dia=items[i]["datas"][j].substring(0,2);
                 var dataTabela=ano+'-'+mes+'-'+dia
-                const repo = await axios.get(`http://127.0.0.1:8000/tabela/${item}/${dataTabela}`)
+                const repo = await axios.get(`http://10.110.209.15:90/tabela/${item}/${dataTabela}`)
 
                 sspan.style.display="inline"
+                const re = /-/gi;
                 for (c=0;c<repo.data.solicitante.length;c++){
                     const tr = document.createElement('tr');
-                    tr.innerHTML +=`<th scope="row">${repo.data.solicitante[c]}</th>`;
-                    tr.innerHTML +=`<td class="table">${repo.data.motivo[c]}</td>`;
-                    tr.innerHTML +=`<td class="table">${repo.data.hora[c]}</td>`;
+                    tr.innerHTML +=`<th scope="row">${repo.data.solicitante[c].replace(re,' ')}</th>`;
+                    tr.innerHTML +=`<td>${repo.data.motivo[c].replace(re,' ')}</td>`;
+                    tr.innerHTML +=`<td>${repo.data.hora[c]}</td>`;
                     varTexto.appendChild(tr);
                     }
                 break;
@@ -122,7 +145,7 @@ async function teste(){
 $(document).ready(function(){
     $('#items').on('change',function(){
         var itemsName = $(this).children("option:selected").val();
-        window.location.href=`http://127.0.0.1:8000/reservas/${itemsName}`
+        window.location.href=`http://10.110.209.15:90/reservas/${itemsName}`
     });
 });
 </script>
