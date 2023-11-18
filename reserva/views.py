@@ -19,12 +19,40 @@ def index(request):
 
 def conversor_de_hora(hora):
     if not len(hora) > 1:
-        print(hora)
         return hora[0]
     else:
         hora_convetida=f'{hora[0][:5]}-{hora[-1][-5:]}'
         return hora_convetida
 
+def conversor_reverso(hora,carro=False,sala=False,auditorio=False):
+    carro_h_lista=['07:50-08:50', '08:51-09:50','09:51-10:50','10:51-11:50','11:51-12:50','12:51-13:50','13:51-14:50',
+             '14:51-15:50','15:51-17:15']
+    sala_h_lista=['07:50-08:30','08:31-09:00','09:01-09:30',
+             '09:31-10:00','10:01-10:30','10:31-11:00','11:01-11:30',
+             '11:31-12:00','12:01-12:30','12:31-13:00',
+             '13:01-13:30','13:31-14:00','14:01-14:30',
+             '14:31-15:00', '15:01-15:30','15:31-16:00',
+             '16:01-16:30','16:31-17:15']
+    auditorio_h_lista = ['08:00-12:00','12:01-17:00','17:01-22:50']
+    init=0
+    end=0
+    horas=[]
+    if carro==True:
+        h_lista=carro_h_lista
+    elif sala==True:
+        h_lista=sala_h_lista
+    elif auditorio==True:
+        h_lista=auditorio_h_lista
+    for query in hora:
+        for h in h_lista:
+            if query[0][:5] == h[:5]:
+                init=h_lista.index(h)
+            if query[0][-5:] == h[-5:]:
+                end=h_lista.index(h)
+        for i in range(init,end+1):
+            horas.append(h_lista[i])
+
+    return horas
 
 def carro(request,result,carro):
     if not carro == "FordKa" and not carro == "Onix" and not carro == "HB20":
@@ -33,13 +61,16 @@ def carro(request,result,carro):
     result = result.split('-')
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
+    select=Carro.objects.filter(carro=carro,data=n_result.replace('/','-')).values_list('hora')
+    selecteds=conversor_reverso(select,carro=True)
+
     if request.method == 'POST':
         carroForm = ReservaCarro(request.POST)
         if carroForm.is_valid():
             nome=carroForm.cleaned_data['nome']
             nome=nome.replace(' ','-')
             email=carroForm.cleaned_data['email']
-            hora=carroForm.cleaned_data['horas']
+            hora = request.POST.getlist('hora')
             rep=carroForm.cleaned_data['repetir']
             motivo=carroForm.cleaned_data['motivo']
             motivo = motivo.replace(' ', '-')
@@ -103,7 +134,7 @@ def carro(request,result,carro):
             messages.success(request,'Reserva encaminhada para Aprovação')
             return redirect('index')
         print(carroForm.errors.as_data())
-    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data})
+    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data,'selecteds':selecteds})
 
 def sala(request,result,sala):
     if sala == "FordKa" and sala == "Onix" and sala == "HB20":
@@ -112,16 +143,18 @@ def sala(request,result,sala):
     result = result.split('-')
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
+    select = Sala.objects.filter(sala=sala, data=n_result.replace('/', '-')).values_list('hora')
+    if sala == 'Auditorio':
+        selecteds = conversor_reverso(select, auditorio=True)
+    else:
+        selecteds = conversor_reverso(select, sala=True)
     if request.method == 'POST':
         salaForm = ReservaSala(request.POST)
         if salaForm.is_valid():
             nome=salaForm.cleaned_data['nome']
             nome=nome.replace(' ','-')
             email=salaForm.cleaned_data['email']
-            if sala == 'Auditorio':
-                hora=salaForm.cleaned_data['auditorio']
-            else:
-                hora = salaForm.cleaned_data['horas']
+            hora = request.POST.getlist('horas')
             rep=salaForm.cleaned_data['repetir']
             motivo=salaForm.cleaned_data['motivo']
             motivo = motivo.replace(' ', '-')
@@ -130,7 +163,7 @@ def sala(request,result,sala):
                 mail='valdirene.monteiro@sicoob.com.br'
             elif sala == 'Auditorio':
                 apro='Maria José'
-                mail='maze.teixeira@sicoob.com.br'
+                mail='maze.teixera@sicoob.com.br'
             else:
                 apro = 'Mayara Alvarenga'
                 mail = 'mayara.alvarenga@sicoob.com.br'
@@ -193,7 +226,7 @@ def sala(request,result,sala):
             messages.success(request,'Reserva encaminhada para Aprovação')
             return redirect('index')
         print(salaForm.errors.as_data())
-    return render(request,'reserva/sala.html',{'salaForm':salaForm,'sala':sala,'data':data})
+    return render(request,'reserva/sala.html',{'salaForm':salaForm,'sala':sala,'data':data,'selecteds':selecteds})
 
 
 def login(request):
