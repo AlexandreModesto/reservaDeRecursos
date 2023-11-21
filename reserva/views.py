@@ -33,6 +33,8 @@ def carro(request,result,carro):
     result = result.split('-')
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
+    data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
+    select = Carro.objects.filter(carro=carro,data=data_f).values_list()[0]
     if request.method == 'POST':
         carroForm = ReservaCarro(request.POST)
         if carroForm.is_valid():
@@ -103,7 +105,7 @@ def carro(request,result,carro):
             messages.success(request,'Reserva encaminhada para Aprovação')
             return redirect('index')
         print(carroForm.errors.as_data())
-    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data})
+    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data,'select':select})
 
 def sala(request,result,sala):
     if sala == "FordKa" and sala == "Onix" and sala == "HB20":
@@ -752,6 +754,9 @@ def manutencao(request):
     return render(request,'reserva/manutencao.html')
 
 def pings(request):
+    # car = Carro.objects.filter(id=156).values_list()
+    # for i in car[0]:
+    #     print(i)
     return render(request,'reserva/pinging.html')
 
 def json_ping(request):
