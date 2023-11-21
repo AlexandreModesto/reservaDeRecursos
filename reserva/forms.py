@@ -10,10 +10,6 @@ class ReservaCarro(forms.Form):
     email = forms.EmailField(label='Digite seu email', max_length=100,
                              widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'email@email.com'}))
     motivo=forms.CharField(label='Qual o motivo?', max_length=100,widget=forms.TextInput(attrs={'class':'form-control','placeholder':'Viagem para BOT'}))
-    horas_choice=(('07:50-08:50','07:50 - 08:50'),('08:51-09:50','08:51 - 09:50'),('09:51-10:50','09:51 - 10:50'),
-           ('10:51-11:50','10:51 - 11:50'),('11:51-12:50','11:51 - 12:50'),('12:51-13:50','12:51 - 13:50'),
-           ('13:51-14:50','13:51 - 14:50'),('14:51-15:50','14:51 - 15:50'),('15:51-17:15','15:51 - 17:15'))
-    horas=forms.MultipleChoiceField(choices=horas_choice,label='Horário :',widget=forms.CheckboxSelectMultiple)
     repetir=forms.BooleanField(required=False,label='Repetir',)
 
 
@@ -26,15 +22,6 @@ class ReservaSala(forms.Form):
                              widget=forms.EmailInput(attrs={'class':'form-control','placeholder':'email@email.com'}))
     motivo = forms.CharField(label='Qual o motivo?', max_length=100,
                              widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Reunião da Diretoria'}))
-    horas_choice = (('07:50-08:30', '07:50 - 08:30'), ('08:31-09:00', '08:31 - 09:00'), ('09:01-09:30', '09:01 - 09:30'),
-             ('09:31-10:00', '09:31 - 10:00'), ('10:01-10:30', '10:01 - 10:30'), ('10:31-11:00', '10:31 - 11:00'),
-             ('11:31-12:00', '11:31 - 12:00'), ('12:01-12:30', '12:01 - 12:30'), ('12:31-13:00', '12:31 - 13:00'),
-             ('13:01-13:30', '13:01 - 13:30'), ('13:31-14:00', '13:31 - 14:00'), ('14:01-14:30', '14:01 - 14:30'),
-             ('14:31-15:00', '14:31 - 15:00'), ('15:01-15:30', '15:01 - 15:30'), ('15:31-16:00', '15:31 - 16:00'),
-             ('16:01-16:30', '16:01 - 16:30'), ('16:31-17:15', '16:31 - 17:15'))
-    horas = forms.MultipleChoiceField(choices=horas_choice, label='Horário :', widget=forms.CheckboxSelectMultiple,required=False)
-    auditorio_choice = (('08:00-12:00', '08:00 - 12:00'), ('12:01-17:00', '12:01 - 17:00'), ('17:01-22:50', '17:01 - 22:50'))
-    auditorio = forms.MultipleChoiceField(choices=auditorio_choice, label='Horário :', widget=forms.CheckboxSelectMultiple,required=False)
     repetir = forms.BooleanField(required=False, label='Repetir', )
 
 
