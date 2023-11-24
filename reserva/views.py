@@ -25,6 +25,8 @@ def conversor_de_hora(hora):
         return hora_convetida
 
 def conversor_reverso(hora,carro=False,sala=False,auditorio=False):
+    try : hora[0]
+    except:return ['']
     carro_h_lista=['07:50-08:50', '08:51-09:50','09:51-10:50','10:51-11:50','11:51-12:50','12:51-13:50','13:51-14:50',
              '14:51-15:50','15:51-17:15']
     sala_h_lista=['07:50-08:30','08:31-09:00','09:01-09:30',
@@ -61,14 +63,12 @@ def carro(request,result,carro):
     result = result.split('-')
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
-<<<<<<< HEAD
     data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
-    select = Carro.objects.filter(carro=carro,data=data_f).values_list()[0]
-=======
+
     select=Carro.objects.filter(carro=carro,data=n_result.replace('/','-')).values_list('hora')
     selecteds=conversor_reverso(select,carro=True)
+    print(selecteds)
 
->>>>>>> 4728b18f3cb752550737b04a8c4e7a4ea230bb3b
     if request.method == 'POST':
         carroForm = ReservaCarro(request.POST)
         if carroForm.is_valid():
@@ -139,11 +139,7 @@ def carro(request,result,carro):
             messages.success(request,'Reserva encaminhada para Aprovação')
             return redirect('index')
         print(carroForm.errors.as_data())
-<<<<<<< HEAD
-    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data,'select':select})
-=======
     return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data,'selecteds':selecteds})
->>>>>>> 4728b18f3cb752550737b04a8c4e7a4ea230bb3b
 
 def sala(request,result,sala):
     if sala == "FordKa" and sala == "Onix" and sala == "HB20":
@@ -397,10 +393,10 @@ def reservas(request,item):
 
 def reservas_get(request,carro,dat):
     try:
-        tabela=Carro.objects.filter(data=dat,carro=carro).values()
+        tabela=Carro.objects.filter(data=dat,carro=carro,aprovado=True).values()
         print(tabela[0])
     except:
-        tabela = Sala.objects.filter(data=dat, sala=carro).values()
+        tabela = Sala.objects.filter(data=dat, sala=carro,aprovado=True).values()
     table = {'solicitante': '', 'motivo': '', 'hora': '', 'aprovado': ''}
     for item in tabela:
         table['solicitante'] += ' ' + item['solicitante']
