@@ -65,9 +65,10 @@ def carro(request,result,carro):
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
     data_f = datetime.strptime(n_result, '%Y/%m/%d').date()
 
-    select=Carro.objects.filter(carro=carro,data=n_result.replace('/','-')).values_list('hora')
+    select=Carro.objects.filter(carro=carro,data=n_result.replace('/','-'),aprovado=True).values_list('hora')
     selecteds=conversor_reverso(select,carro=True)
-    print(selecteds)
+    len=selecteds.__len__()
+
 
     if request.method == 'POST':
         carroForm = ReservaCarro(request.POST)
@@ -139,7 +140,7 @@ def carro(request,result,carro):
             messages.success(request,'Reserva encaminhada para Aprovação')
             return redirect('index')
         print(carroForm.errors.as_data())
-    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data,'selecteds':selecteds})
+    return render(request,'reserva/carro.html',{'carroForm':carroForm,'carro':carro,'data':data,'selecteds':selecteds,'len':len})
 
 def sala(request,result,sala):
     if sala == "FordKa" and sala == "Onix" and sala == "HB20":
@@ -148,7 +149,7 @@ def sala(request,result,sala):
     result = result.split('-')
     data = f'{result[0]}/{result[1]}/{result[2]}'
     n_result = f'{result[2]}/{result[1]}/{result[0]}'
-    select = Sala.objects.filter(sala=sala, data=n_result.replace('/', '-')).values_list('hora')
+    select = Sala.objects.filter(sala=sala, data=n_result.replace('/', '-'),aprovado=True).values_list('hora')
     if sala == 'Auditorio':
         selecteds = conversor_reverso(select, auditorio=True)
     else:
@@ -159,7 +160,7 @@ def sala(request,result,sala):
             nome=salaForm.cleaned_data['nome']
             nome=nome.replace(' ','-')
             email=salaForm.cleaned_data['email']
-            hora = request.POST.getlist('horas')
+            hora = request.POST.getlist('hora')
             rep=salaForm.cleaned_data['repetir']
             motivo=salaForm.cleaned_data['motivo']
             motivo = motivo.replace(' ', '-')
@@ -428,9 +429,11 @@ def reservas_json(request,item):
             motivo = []
             solicitante = []
             aux=fordka.order_by('data').values()
+
             while True:
                 aux_date=aux[indice]['data']
                 mes=datetime.strptime(str(aux_date),'%Y-%m-%d').date().month
+
 
                 if not mes == mes_anterior :
                     mes_anterior=mes
@@ -641,13 +644,14 @@ def reservas_json(request,item):
 
     #Sala Conad Maior
 
-    elif item == 'Sala Conad Maior':
+    elif item == 'Sala Maior Conad':
         indice = 0
         salaConadM = consultaSala.filter(sala=item)
         resultadosSalaConadM = {}
         mes_anterior = ''
 
         for i in range(0, len(salaConadM.dates('data', 'month'))):
+
             dias = []
             datas = []
             motivo = []
@@ -665,8 +669,10 @@ def reservas_json(request,item):
 
             for item in salaConadM.filter(data__month=mes):
                 data = datetime.strptime(str(item.data), '%Y-%m-%d').date()
+
                 dias.append(data.day)
                 data_f = str(data).split('-')
+
                 data_s = f'{data_f[2]}/{data_f[1]}/{data_f[0]}'
                 datas.append(data_s)
 
@@ -686,7 +692,7 @@ def reservas_json(request,item):
 
     #Sala Conad Menor
 
-    elif item == 'Sala Conad Menor':
+    elif item == 'Sala Menor Conad':
         indice = 0
         salaConadm = consultaSala.filter(sala=item)
         resultadosSalaConadm = {}
@@ -701,7 +707,7 @@ def reservas_json(request,item):
             while True:
                 aux_date = aux[indice]['data']
                 mes = datetime.strptime(str(aux_date), '%Y-%m-%d').date().month
-
+                ano = datetime.strptime(str(aux_date), '%Y-%m-%d').date().year
                 if not mes == mes_anterior:
                     mes_anterior = mes
                     break
@@ -719,6 +725,7 @@ def reservas_json(request,item):
                 solicitante.append(item.solicitante)
 
             dados = {
+                "ano":ano,
                 "mes": mes - 1,
                 "dia": dias,
                 "datas": datas,

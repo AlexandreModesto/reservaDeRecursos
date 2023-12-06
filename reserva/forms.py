@@ -35,7 +35,10 @@ def return_month(date,now=False,one=False,two=False):
     if not now == False:
         return dict[hoje.month]
     elif not one == False:
-        return dict[hoje.month+1]
+        try:
+            return dict[hoje.month+1]
+        except:
+            return dict[hoje.month]
     else:
         try:
             return dict[hoje.month+2]

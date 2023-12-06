@@ -28,6 +28,9 @@
                 <div class="inline">
                     <div id="id_horas">
                         <label for="id_horas"><span class="badge text-bg-success" style="font-size:20px">Horários Díponíveis:</span></label>
+                        {% if len == 9 %}
+                        <p><span class="badge text-bg-warning" style="font-size:20px">Sem Horários disponíveis</span></p>
+                        {% else %}
                         {% if not '07:50-08:50' in selecteds %}
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="hora" value="07:50-08:50" id="defaultCheck1">
@@ -99,6 +102,7 @@
                             15:51 - 17:15
                             </label>
                         </div>
+                        {% endif %}
                         {% endif %}
                      </div>
                  </div>

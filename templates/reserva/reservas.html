@@ -58,6 +58,7 @@ async function main(){
  const item = document.getElementById('item');
  const response = await axios.get(`http://10.110.209.15:90/json/${item.value}`);
  const data = response.data;
+
  const items = Object.values(data);
  var date = new Date();
 
@@ -70,11 +71,11 @@ async function main(){
              for (var i = 0; i < items.length; i++){
                 mes = items[i]["mes"];
                 dias = items[i]["dia"];
-                if (date.getMonth() == mes){
-                    if (~dias.indexOf(date.getDate())) {
-                        return {classes: 'highlighted', tooltip: 'Title'};
+                    if (date.getMonth() == mes){
+                        if (~dias.indexOf(date.getDate())) {
+                            return {classes: 'highlighted', tooltip: 'Title'};
+                        }
                     }
-                }
 
             }
         }
@@ -91,11 +92,23 @@ async function main(){
              for (var i = 0; i < items.length; i++){
                 mes = items[i]["mes"];
                 dias = items[i]["dia"];
-                if (date.getMonth() == mes){
-                    if (~dias.indexOf(date.getDate())) {
-                        return {classes: 'highlighted', tooltip: 'Title'};
+                data_j=items[i]["datas"];
+
+                    if (date.getMonth() == mes){
+                        if (~dias.indexOf(date.getDate())) {
+                            for (var dt = 0; dt< data_j.length; dt++){
+                                string_dt=data_j[dt];
+                                string_sli=string_dt.split("/")
+                                if (string_sli[0] == date.getDate()){
+                                    if (string_sli[2] == date.getFullYear()){
+                                        return {classes: 'highlighted', tooltip: 'Title'};
+                                    }
+                                }
+                            }
+
+                        }
                     }
-                }
+
 
             }
         }
