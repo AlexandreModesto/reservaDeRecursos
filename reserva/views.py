@@ -395,9 +395,11 @@ def reservas(request,item):
 def reservas_get(request,carro,dat):
     try:
         tabela=Carro.objects.filter(data=dat,carro=carro,aprovado=True).values()
+        check=tabela[0]
 
     except:
         tabela = Sala.objects.filter(data=dat, sala=carro,aprovado=True).values()
+
     table = {'solicitante': '', 'motivo': '', 'hora': '', 'aprovado': ''}
     for item in tabela:
         table['solicitante'] += ' ' + item['solicitante']
