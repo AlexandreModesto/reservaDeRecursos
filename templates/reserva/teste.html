@@ -1,0 +1,91 @@
+{% extends 'reserva/base.html' %}
+{% load static %}
+{% block content %}
+{% if teste %}
+<form action="" method="post" class="show-loading-after-submit">
+    {% csrf_token %}
+    <input type="hidden" name="hours_list" id="hours_list">
+    <label for="{{teste.obj_name.id_for_label}}" style="padding-top:10px;">{{teste.obj_name.label}}</label>
+    {{teste.obj_name}}
+    <label for="{{teste.hours_available.id_for_label}}">{{teste.hours_available.label}}</label>
+    <div class="hours_holder" >
+        <ul class="list">
+
+        </ul>
+    </div>
+    <span><input type="time" id="hour_avlb_init"> ate <input type="time" id="hour_avlb_end"></span>
+    <button type="button" id="addItem">Add Item</button>
+    <input type="submit" value="Salvar">
+</form>
+<script>
+    //Add new hour
+    const addItem = document.querySelector('#addItem');
+    const hours_avlb_init = document.querySelector("#hour_avlb_init");
+    const hours_avlb_end = document.querySelector("#hour_avlb_end");
+    const hours_holder=document.querySelector(".hours_holder");
+
+    addItem.addEventListener('click', () =>{
+        if(hours_avlb_init.value === '' || hours_avlb_end.value === ''){
+        alert("Preencha a data inicial e final para adicionar")
+        }else{
+        const ul= hours_holder.querySelector("ul");
+        const spanLine=document.createElement('span');
+
+        const inputTimeInit=document.createElement('input');
+        inputTimeInit.setAttribute("type","time");
+        inputTimeInit.setAttribute("value",hours_avlb_init.value);
+
+        const inputTimeEnd=document.createElement('input');
+        inputTimeEnd.setAttribute("type","time");
+        inputTimeEnd.setAttribute("value",hours_avlb_end.value);
+
+        spanLine.innerHTML=inputTimeInit.value+" até "+inputTimeEnd.value;
+        ul.appendChild(spanLine);
+        createBtn(spanLine);
+        updateToAddHoursList(inputTimeInit.value+" até "+inputTimeEnd.value);
+        }
+    });
+
+    //edit or remove hour
+    const listUl = document.querySelector(".list");
+    const lis = listUl.children;
+    function createBtn(li){
+        const remove=document.createElement("button");
+        remove.className = "btn-icon remove";
+        li.appendChild(remove);
+
+
+        return li;
+    }
+    for(var i =0;i<lis.length;i++){
+        createBtn(lis[i]);
+    }
+    hours_holder.addEventListener('click',(event)=>{
+        if(event.target.tagName ==="BUTTON"){
+            const button=event.target;
+            const li = button.parentNode;
+            const ul = li.parentNode;
+            if(button.className === "btn-icon remove"){
+                ul.removeChild(li)
+                updateHoursList();
+            }
+        }
+    })
+        // Update hidden input field with the contents of the ul tag
+    function updateHoursList() {
+        const ulContents = hours_holder.querySelector("ul");
+        const hours_list=document.querySelector("#hours_list")
+        hours_list.value='';
+        var itens = ulContents.getElementsByTagName("span");
+        for (var i = 0; i < itens.length; i++) {
+            hours_list.value=hours_list.value+","+itens[i].textContent;
+        }
+
+    }
+    function updateToAddHoursList(hours) {
+        const hours_list=document.querySelector("#hours_list")
+        hours_list.value = hours_list.value+","+hours;
+    }
+</script>
+{% endif %}
+{% endblock %}

@@ -6,11 +6,23 @@ from django.contrib.auth import authenticate
 import ping3
 
 from .models import Carro,Sala
-from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm
+from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm,TesteCriandoObjeto
 from django.core.mail import EmailMessage
 from django.contrib import messages
 from datetime import date,datetime,timedelta
+# from Objects_Class import Car
 
+def teste(request):
+    form=TesteCriandoObjeto()
+    if request.method == 'POST':
+
+        form=TesteCriandoObjeto(request.POST)
+        print(form.errors.as_data())
+        if form.is_valid():
+            print(request.POST['hours_list'])
+            print(form.cleaned_data['obj_name'])
+
+    return render(request,'reserva/teste.html',{'teste':form})
 
 def index(request):
     carro_list=['FordKa','Onix','HB20']
