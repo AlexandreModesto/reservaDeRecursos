@@ -9,7 +9,7 @@
     {{teste.obj_name}}
     <label for="{{teste.hours_available.id_for_label}}">{{teste.hours_available.label}}</label>
     <div class="hours_holder" >
-        <ul class="list">
+        <ul class="list" style="list-style-type:none">
 
         </ul>
     </div>
@@ -30,6 +30,7 @@
         }else{
         const ul= hours_holder.querySelector("ul");
         const spanLine=document.createElement('span');
+        const li = document.createElement("li");
 
         const inputTimeInit=document.createElement('input');
         inputTimeInit.setAttribute("type","time");
@@ -40,7 +41,8 @@
         inputTimeEnd.setAttribute("value",hours_avlb_end.value);
 
         spanLine.innerHTML=inputTimeInit.value+" até "+inputTimeEnd.value;
-        ul.appendChild(spanLine);
+        li.appendChild(spanLine)
+        ul.appendChild(li);
         createBtn(spanLine);
         updateToAddHoursList(inputTimeInit.value+" até "+inputTimeEnd.value);
         }

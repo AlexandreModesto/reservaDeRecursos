@@ -10,7 +10,7 @@ from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm,TesteCriando
 from django.core.mail import EmailMessage
 from django.contrib import messages
 from datetime import date,datetime,timedelta
-# from Objects_Class import Car
+from .Objects_Class import Carro_Class
 
 def teste(request):
     form=TesteCriandoObjeto()
@@ -19,8 +19,9 @@ def teste(request):
         form=TesteCriandoObjeto(request.POST)
         print(form.errors.as_data())
         if form.is_valid():
-            print(request.POST['hours_list'])
-            print(form.cleaned_data['obj_name'])
+            new_obj=Carro_Class(form.cleaned_data['obj_name'],request.POST['hours_list'])
+            print(new_obj.getHours_available())
+
 
     return render(request,'reserva/teste.html',{'teste':form})
 
