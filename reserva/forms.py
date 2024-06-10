@@ -54,5 +54,5 @@ class ReservasForm(forms.Form):
 
 class TesteCriandoObjeto(forms.Form):
     obj_name=forms.CharField(label='Digite o nome de carro',required=True,max_length=100,widget=forms.TextInput(attrs={'class':'form-control'}))
-    hours_available=forms.TimeField(label='Cria a hora',widget=forms.TimeInput(attrs={'class':'form-control'}),required=False)
+    hours_available=forms.TimeField(label='Cria a hora',widget=forms.TimeInput(attrs={'id':'hours'}),required=False)
     repetir = forms.BooleanField(required=False, label='Repetir', )

@@ -2,21 +2,55 @@
 {% load static %}
 {% block content %}
 {% if teste %}
-<form action="" method="post" class="show-loading-after-submit">
-    {% csrf_token %}
-    <input type="hidden" name="hours_list" id="hours_list">
-    <label for="{{teste.obj_name.id_for_label}}" style="padding-top:10px;">{{teste.obj_name.label}}</label>
-    {{teste.obj_name}}
-    <label for="{{teste.hours_available.id_for_label}}">{{teste.hours_available.label}}</label>
-    <div class="hours_holder" >
-        <ul class="list" style="list-style-type:none">
+<style>
+    .form-control{
+        width:20%;
+        display:inline;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-8" style="border-right:solid black 1.5px">
+            <h2>Criação de um novo Recurso</h2>
+            <form action="" method="post" class="show-loading-after-submit">
+                {% csrf_token %}
 
-        </ul>
+                <input type="hidden" name="hours_list" id="hours_list">
+                <br>
+                <div class="input-group" style="width:70%">
+                    <span class="input-group-text">{{teste.obj_name.label}}</span>
+                    {{teste.obj_name}}
+                </div>
+                <div class="hours_holder" >
+                    <br>
+                    <span>Horas Cadastradas</span>
+                    <ul class="list" style="list-style-type:none">
+
+                    </ul>
+                </div>
+                <span>
+                    <div class="input-group" style="width:35%;display:inline-flex;"><span class="input-group-text">Defina os horários</span><input type="time" id="hour_avlb_init" class="form-control"></div>
+                    até
+                    <div class="input-group" style="width:35%;display:inline-flex;"><input type="time" id="hour_avlb_end" class="form-control"><button type="button" id="addItem" class="btn btn-primary">Adicionar Horário</button>
+                    </div>
+                </span>
+                <br><br>
+
+                <input type="submit" value="Salvar" class="btn btn-success">
+            </form>
+        </div>
+        <div class="col-4">
+            <h3>Recursos já criados</h3>
+            <ul style="list-style-type:none">
+                {% for car in car_query %}
+                <li>
+                    {{ car }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
-    <span><input type="time" id="hour_avlb_init"> ate <input type="time" id="hour_avlb_end"></span>
-    <button type="button" id="addItem">Add Item</button>
-    <input type="submit" value="Salvar">
-</form>
+</div>
 <script>
     //Add new hour
     const addItem = document.querySelector('#addItem');

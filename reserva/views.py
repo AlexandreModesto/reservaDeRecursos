@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.contrib.auth import authenticate
 import ping3
 
-from .models import Carro,Sala
+from .models import Carro,Sala,Resources
 from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm,TesteCriandoObjeto
 from django.core.mail import EmailMessage
 from django.contrib import messages
@@ -14,16 +14,27 @@ from .Objects_Class import Carro_Class
 
 def teste(request):
     form=TesteCriandoObjeto()
+    request.user.username='Alexandre'
+    request.user.email="teste@teste.com"
+    car_query=Resources.objects.filter(type='Carro')
     if request.method == 'POST':
 
         form=TesteCriandoObjeto(request.POST)
-        print(form.errors.as_data())
         if form.is_valid():
-            new_obj=Carro_Class(form.cleaned_data['obj_name'],request.POST['hours_list'])
-            print(new_obj.getHours_available())
+            # new_obj=Carro_Class(form.cleaned_data['obj_name'],request.POST['hours_list'],approver=request.user.username,email=request.user.email)
+            # new_resource=Resources(type=new_obj.type,name=new_obj.car,approver=new_obj.approver,email=new_obj.email)
+            # new_resource.register_Hours(new_obj.getHours_available())
+            # new_resource.save()
+            query=Resources.objects.get(name='sedan')
+            # r = Carro(carro=query,hora=query.hours_registred)
+            # r.save()
+            r = Carro.objects.get(carro=query)
+
+        else:
+            print(form.errors.as_data())
 
 
-    return render(request,'reserva/teste.html',{'teste':form})
+    return render(request,'reserva/teste.html',{'teste':form,'car_query':car_query})
 
 def index(request):
     carro_list=['FordKa','Onix','HB20']
