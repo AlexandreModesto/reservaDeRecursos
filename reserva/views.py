@@ -6,38 +6,48 @@ from django.contrib.auth import authenticate
 import ping3
 
 from .models import Carro,Sala,Resources
-from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm,TesteCriandoObjeto
+from .forms import ReservaSala,ReservaCarro,LoginForms,ReservasForm,CriandoObjeto
 from django.core.mail import EmailMessage
 from django.contrib import messages
 from datetime import date,datetime,timedelta
 from .Objects_Class import Carro_Class
 
-def teste(request):
-    form=TesteCriandoObjeto()
+
+def teste(request,item):
+    resource=Resources.objects.get(name=item)
+
+    return render(request,'reserva/teste.html', {"resource":resource})
+
+def create_resource_panel(request):
+    form=CriandoObjeto()
     request.user.username='Alexandre'
     request.user.email="teste@teste.com"
     car_query=Resources.objects.filter(type='Carro')
     if request.method == 'POST':
 
-        form=TesteCriandoObjeto(request.POST)
+        form=CriandoObjeto(request.POST)
         if form.is_valid():
-            # new_obj=Carro_Class(form.cleaned_data['obj_name'],request.POST['hours_list'],approver=request.user.username,email=request.user.email)
-            # new_resource=Resources(type=new_obj.type,name=new_obj.car,approver=new_obj.approver,email=new_obj.email)
-            # new_resource.register_Hours(new_obj.getHours_available())
-            # new_resource.save()
-            query=Resources.objects.get(name='sedan')
-            # r = Carro(carro=query,hora=query.hours_registred)
-            # r.save()
-            r = Carro.objects.get(carro=query)
-
+            try:
+                Resources.objects.get(name=form.cleaned_data['obj_name'])
+            except:
+                new_obj=Carro_Class(form.cleaned_data['obj_name'],request.POST['hours_list'],approver=request.user.username,email=request.user.email)
+                new_resource=Resources(type=new_obj.type,name=new_obj.car,approver=new_obj.approver,email=new_obj.email)
+                new_resource.register_Hours(new_obj.getHours_available())
+                new_resource.save()
+                messages.success(request,"Recurso Criado com sucesso")
+                return redirect('painel_criacao_recurso')
+            else:
+                messages.error(request, 'Não pode haver carros com mesmo nome')
+                return redirect('painel_criacao_recurso')
         else:
             print(form.errors.as_data())
 
 
-    return render(request,'reserva/teste.html',{'teste':form,'car_query':car_query})
+    return render(request,'reserva/Painel_criacao_recurso.html',{'form':form,'car_query':car_query})
 
 def index(request):
-    carro_list=['FordKa','Onix','HB20']
+    # carro_list=['FordKa','Onix','HB20']
+    carro_list=Resources.objects.filter(type="Carro")
     sala_list=['Sala Terreo','Sala andar 1','Sala Maior Conad','Sala Menor Conad','Auditório']
     return render(request,'reserva/index.html',{'carro_list':carro_list,'sala_list':sala_list})
 

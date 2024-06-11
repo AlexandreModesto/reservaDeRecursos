@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index,carro,sala, login, aprovar_carro,aprovar_sala,reservas,reserva_mes,reservas_json,reservas_get,manutencao,pings,json_ping,teste
+from .views import index,carro,sala, login, aprovar_carro,aprovar_sala,reservas,reserva_mes,reservas_json,reservas_get,manutencao,pings,json_ping,create_resource_panel,teste
 
 urlpatterns = [
     path('', index,name='index'),
@@ -12,7 +12,8 @@ urlpatterns = [
     path('reservas-totais/<str:db>',reserva_mes,name='reservaMes'),
     path('tabela/<str:carro>/<str:dat>',reservas_get,name='reservasGET'),
     path('json/<str:item>',reservas_json,name='json'),
-    path('teste',teste,name='teste'),
+    path('painelCriacaoRecurso',create_resource_panel,name='painel_criacao_recurso'),
+    path('teste/<str:item>',teste,name='teste'),
 
     #path('',manutencao,name='manutencao'),
     path('ping', pings, name='ping'),

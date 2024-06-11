@@ -1,0 +1,151 @@
+{% extends 'reserva/base.html' %}
+{% load static %}
+{% block content %}
+{% if form %}
+<style>
+    .form-control{
+        width:20%;
+        display:inline;
+    }
+    .card:hover{
+        transform:scale(1.1);
+        box-shadow:5px 6px 6px 2px #e9ecef;
+    }
+</style>
+<div class="container">
+    <div class="row">
+        <div class="col-8" style="border-right:solid black 1.5px">
+            <h2>Criação de um novo Recurso</h2>
+            <form action="" method="post" class="show-loading-after-submit">
+                {% csrf_token %}
+
+                <input type="hidden" name="hours_list" id="hours_list">
+                <br>
+                <div class="input-group" style="width:70%">
+                    <span class="input-group-text">{{form.obj_name.label}}</span>
+                    {{form.obj_name}}
+                </div>
+                <div class="hours_holder" >
+                    <br>
+                    <span>Horas Cadastradas</span>
+                    <ul class="list" style="list-style-type:none">
+
+                    </ul>
+                </div>
+                <span>
+                    <div class="input-group" style="width:35%;display:inline-flex;"><span class="input-group-text">Defina os horários</span><input type="time" id="hour_avlb_init" class="form-control"></div>
+                    até
+                    <div class="input-group" style="width:35%;display:inline-flex;"><input type="time" id="hour_avlb_end" class="form-control"><button type="button" id="addItem" class="btn btn-primary">Adicionar Horário</button>
+                    </div>
+                </span>
+                <br><br>
+
+                <input type="submit" value="Salvar" class="btn btn-success">
+            </form>
+        </div>
+        <div class="col-4">
+            <h3>Recursos já criados</h3>
+            <ul style="list-style-type:none">
+                {% for car in car_query %}
+                <li>
+                    <div class="card" style="width:18rem;margin-bottom:10px">
+                        <div class="card-body">
+                            <h5>{{ car }}</h5>
+                            <a class="btn btn-secondary" href="#">Visualizar</a>
+                            <a class="btn btn-secondary" href="#">#</a>
+                        </div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+<script>
+    //Add new hour
+    const addItem = document.querySelector('#addItem');
+    const hours_avlb_init = document.querySelector("#hour_avlb_init");
+    const hours_avlb_end = document.querySelector("#hour_avlb_end");
+    const hours_holder=document.querySelector(".hours_holder");
+
+    addItem.addEventListener('click', () =>{
+        if(hours_avlb_init.value === '' || hours_avlb_end.value === ''){
+        alert("Preencha a data inicial e final para adicionar")
+        }else{
+        const ul= hours_holder.querySelector("ul");
+        const spanLine=document.createElement('span');
+        const li = document.createElement("li");
+
+        const inputTimeInit=document.createElement('input');
+        inputTimeInit.setAttribute("type","time");
+        inputTimeInit.setAttribute("value",hours_avlb_init.value);
+
+        const inputTimeEnd=document.createElement('input');
+        inputTimeEnd.setAttribute("type","time");
+        inputTimeEnd.setAttribute("value",hours_avlb_end.value);
+
+        spanLine.innerHTML=inputTimeInit.value+" até "+inputTimeEnd.value;
+        li.appendChild(spanLine)
+        ul.appendChild(li);
+        createBtn(spanLine);
+        updateToAddHoursList(inputTimeInit.value+" até "+inputTimeEnd.value);
+        }
+    });
+
+    //edit or remove hour
+    const listUl = document.querySelector(".list");
+    const lis = listUl.children;
+    function createBtn(li){
+        const remove=document.createElement("button");
+        const icon=document.createElement("i");
+        icon.className="bi bi-trash";
+        remove.appendChild(icon);
+        remove.style.border="none";
+        remove.style.backgroundColor="inherit";
+        remove.className="remove";
+        li.appendChild(remove);
+
+
+        return li;
+    }
+    for(var i =0;i<lis.length;i++){
+        createBtn(lis[i]);
+    }
+    hours_holder.addEventListener('click',(event)=>{
+        if(event.target.tagName ==="BUTTON"){
+            const button=event.target;
+            const li = button.parentNode;
+            const ul = li.parentNode;
+            if(button.className === "remove"){
+                ul.removeChild(li)
+                updateHoursList();
+            }
+        }else if(event.target.tagName==="I"){
+            const icon = event.target;
+            const button = icon.parentNode;
+            const li = button.parentNode;
+            const ul = li.parentNode;
+            if (icon.className==="bi bi-trash"){
+                ul.removeChild(li);
+                updateHoursList();
+            }
+        }
+    })
+        // Update hidden input field with the contents of the ul tag
+    function updateHoursList() {
+        const ulContents = hours_holder.querySelector("ul");
+        const hours_list=document.querySelector("#hours_list")
+        hours_list.value='';
+        var itens = ulContents.getElementsByTagName("span");
+        for (var i = 0; i < itens.length; i++) {
+            hours_list.value=hours_list.value+","+itens[i].textContent;
+        }
+
+    }
+    function updateToAddHoursList(hours) {
+        const hours_list=document.querySelector("#hours_list")
+        hours_list.value = hours_list.value+","+hours;
+    }
+</script>
+{% endif %}
+{% endblock %}
