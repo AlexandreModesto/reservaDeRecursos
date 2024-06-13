@@ -5,15 +5,19 @@ class Carro_Class(Resource):
         super().__init__(type, approver, email, requester, reason, date, hour, status)
         self.car=car
         self.hours_available=hours_available
-        self.manipulte_hours()
+
 
     def getHours_available(self):
         return self.hours_available
 
     def extract_hour(self,hour):
         return datetime.strptime(hour.split()[0], '%H:%M')
-    def manipulte_hours(self):#index 0 is empty
-        hours=self.hours_available.split(',')[1:]
+
+    def manipulte_hours(self,update=None):#index 0 is empty
+        if update == None:
+            hours=self.hours_available.split(',')[1:]
+        else:
+            hours=update
         for h in hours:
             hour1=h.split(' até ')[0]
             hour2 = h.split(' até ')[1]
@@ -23,8 +27,6 @@ class Carro_Class(Resource):
                 return print("Hora inicial deve ser maior que hora final")
 
         self.hours_available=sorted(hours,key=self.extract_hour)
-
-
     # carro=models.CharField(max_length=100)
     # aprovador=models.CharField(max_length=100, default='Antônio Rezende')
     # email=models.EmailField(max_length=254, default='antoniorezende@sicoob.com.br')

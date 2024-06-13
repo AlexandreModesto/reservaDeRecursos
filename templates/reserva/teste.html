@@ -1,16 +1,29 @@
 {% extends 'reserva/base.html' %}
 {% load static %}
 {% block content %}
+<style>
+    .form-control{
+        width:20%;
+        display:inline;
+    }
+    li{
+        margin-bottom:10px;
+    }
+</style>
 {% if resource %}
     <h1>{{resource.name}}</h1>
     <h3>{{resource.type}}</h3>
-    <ul style="list-style-type:none">
-    {% for hour in resource.hours_registred %}
-        <li>
-            <input type="text" value="{{hour}}">
-        </li>
-    {% endfor %}
-    </ul>
+    <form action="" method="post" class="show-loading-after-submit">
+        {% csrf_token %}
+        <ul style="list-style-type:none">
+        {% for hour in hours_list %}
+            <li>
+                <span><input type="text" value="{{hour.0}}" name="index.{{hour.2}}.1" class="form-control"> até <input type="text" value="{{hour.1}}" name="index.{{hour.2}}.2" class="form-control"></span>
+            </li>
+        {% endfor %}
+        </ul>
+        <input type="submit" value="Salvar" class="btn btn-success">
+    </form>
 
 {% endif %}
 {% endblock %}

@@ -15,8 +15,27 @@ from .Objects_Class import Carro_Class
 
 def teste(request,item):
     resource=Resources.objects.get(name=item)
+    hours_list=[]
+    for hours in resource.hours_registred:
+        hours_list.append([hours.split(' até ')[0],
+                           hours.split(' até ')[1],list(resource.hours_registred).index(hours)])
 
-    return render(request,'reserva/teste.html', {"resource":resource})
+    if request.method == 'POST':
+        obj=''
+        new_hour_list=[]
+        if resource.type=='Carro':
+            obj = Carro_Class(resource.name, resource.hours_registred)
+        elif resource.type=='Sala':
+            pass
+        for hour in obj.hours_available:
+            new_hour=f"{request.POST[f'index.{list(resource.hours_registred).index(hour)}.1']} até {request.POST[f'index.{list(resource.hours_registred).index(hour)}.2']}"
+            new_hour_list.append(new_hour)
+        obj.manipulte_hours(new_hour_list)
+        resource.register_Hours(obj.getHours_available())
+        resource.save()
+
+
+    return render(request,'reserva/teste.html', {"resource":resource,"hours_list":hours_list})
 
 def create_resource_panel(request):
     form=CriandoObjeto()
@@ -31,6 +50,7 @@ def create_resource_panel(request):
                 Resources.objects.get(name=form.cleaned_data['obj_name'])
             except:
                 new_obj=Carro_Class(form.cleaned_data['obj_name'],request.POST['hours_list'],approver=request.user.username,email=request.user.email)
+                new_obj.manipulte_hours()
                 new_resource=Resources(type=new_obj.type,name=new_obj.car,approver=new_obj.approver,email=new_obj.email)
                 new_resource.register_Hours(new_obj.getHours_available())
                 new_resource.save()
